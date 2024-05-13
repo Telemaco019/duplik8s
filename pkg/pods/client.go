@@ -75,7 +75,7 @@ func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverri
 		return err
 	}
 	if pod.Labels[LABEL_DUPLICATED] == "true" {
-		return fmt.Errorf("Pod %s is already duplicated", podName)
+		return fmt.Errorf("pod %s is already duplicated", podName)
 	}
 
 	// create a new pod and override the spec
@@ -101,6 +101,6 @@ func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverri
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Pod %s duplicated in %s\n", podName, newName)
+	fmt.Printf("pod %s duplicated in %s\n", podName, newName)
 	return nil
 }
