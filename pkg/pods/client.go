@@ -25,6 +25,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+const (
+	LABEL_DUPLICATED = "telemaco019.github.com/duplik8ted"
+)
+
 type PodClient struct {
 	clientset *kubernetes.Clientset
 	ctx       context.Context
@@ -70,6 +74,9 @@ func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverri
 	if err != nil {
 		return err
 	}
+	if pod.Labels[LABEL_DUPLICATED] == "true" {
+		return fmt.Errorf("Pod %s is already duplicated", podName)
+	}
 
 	// create a new pod and override the spec
 	newName := fmt.Sprintf("%s-duplik8ted", pod.Name)
@@ -81,6 +88,9 @@ func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverri
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      newName,
 			Namespace: pod.Namespace,
+			Labels: map[string]string{
+				LABEL_DUPLICATED: "true",
+			},
 		},
 		Spec: pod.Spec,
 	}
