@@ -72,6 +72,7 @@ $(LOCALBIN):
 ## Tool Binaries
 GOLANGCI_LINT ?= $(LOCALBIN)/golangci-lint
 LICENSE_EYE ?= $(LOCALBIN)/license-eye
+VHS ?= $(LOCALBIN)/vhs
 
 ## Tool Versions
 GOLANGCI_LINT_VERSION ?= 1.50.1
@@ -85,3 +86,8 @@ $(GOLANGCI_LINT): $(LOCALBIN)
 license-eye: $(LICENSE_EYE)
 $(LICENSE_EYE): $(LOCALBIN)
 	test -s $(LOCALBIN)/license-eye || GOBIN=$(LOCALBIN) go install github.com/apache/skywalking-eyes/cmd/license-eye@latest
+
+.PHONY: vhs
+vhs: $(VHS)
+$(VSH): $(LOCALBIN)
+	test -s $(LOCALBIN)/vhs || GOBIN=$(LOCALBIN) go install github.com/charmbracelet/vhs@latest

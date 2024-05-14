@@ -6,6 +6,8 @@
 
 ---
 
+![](./docs/demo.gif)
+
 ## Installation
 
 ### Install with Go
