@@ -64,6 +64,8 @@ func (o PodOverrideOptions) Apply(pod *v1.Pod) {
 			pod.Spec.Containers[i].ReadinessProbe = o.ReadinessProbe
 		}
 	}
+	// Remove assigned nod
+	pod.Spec.NodeName = ""
 }
 
 func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error {
