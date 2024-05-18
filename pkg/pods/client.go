@@ -48,6 +48,8 @@ func NewClient(opts utils.KubeOptions) (*PodClient, error) {
 type PodOverrideOptions struct {
 	// Command overrides the default command of each container.
 	Command []string
+	// Args overrides the default args of each container.
+	Args []string
 	// ReadinessProbe overrides the readiness probe of each container.
 	ReadinessProbe *v1.Probe
 	// LivenessProbe overrides the liveness probe of each container.
@@ -59,6 +61,7 @@ func (o PodOverrideOptions) Apply(pod *v1.Pod) {
 	if o.Command != nil {
 		for i := range pod.Spec.Containers {
 			pod.Spec.Containers[i].Command = o.Command
+			pod.Spec.Containers[i].Args = o.Args
 			pod.Spec.Containers[i].ReadinessProbe = o.ReadinessProbe
 			pod.Spec.Containers[i].LivenessProbe = o.LivenessProbe
 			pod.Spec.Containers[i].ReadinessProbe = o.ReadinessProbe

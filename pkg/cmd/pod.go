@@ -61,10 +61,18 @@ var podCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		argsOverride, err := cmd.Flags().GetStringSlice(flags.ARGS_OVERRIDE)
+		if err != nil {
+			return err
+		}
 
 		// Avoid printing usage information on errors
 		cmd.SilenceUsage = true
-		return client.DuplicatePod(args[0], opts.Namespace, pods.PodOverrideOptions{Command: cmdOverride})
+		options := pods.PodOverrideOptions{
+			Command: cmdOverride,
+			Args:    argsOverride,
+		}
+		return client.DuplicatePod(args[0], opts.Namespace, options)
 	},
 }
 
@@ -73,7 +81,12 @@ func init() {
 
 	podCmd.Flags().StringSlice(
 		flags.COMMAND_OVERRIDE,
-		[]string{"sleep", "infinity"},
+		[]string{"/bin/sh"},
+		"Override the command of each container in the Pod.",
+	)
+	podCmd.Flags().StringSlice(
+		flags.ARGS_OVERRIDE,
+		[]string{"-c", "trap 'exit 0' INT TERM KILL; while true; do sleep 1; done"},
 		"Override the command of each container in the Pod.",
 	)
 }
