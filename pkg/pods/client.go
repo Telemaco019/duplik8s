@@ -54,6 +54,8 @@ type PodOverrideOptions struct {
 	ReadinessProbe *v1.Probe
 	// LivenessProbe overrides the liveness probe of each container.
 	LivenessProbe *v1.Probe
+	// StartupProbe overrides the startup probe of each container.
+	StartupProbe *v1.Probe
 }
 
 func (o PodOverrideOptions) Apply(pod *v1.Pod) {
@@ -65,10 +67,13 @@ func (o PodOverrideOptions) Apply(pod *v1.Pod) {
 			pod.Spec.Containers[i].ReadinessProbe = o.ReadinessProbe
 			pod.Spec.Containers[i].LivenessProbe = o.LivenessProbe
 			pod.Spec.Containers[i].ReadinessProbe = o.ReadinessProbe
+			pod.Spec.Containers[i].StartupProbe = o.StartupProbe
 		}
 	}
 	// Remove assigned nod
 	pod.Spec.NodeName = ""
+	// Override restart policy
+	pod.Spec.RestartPolicy = v1.RestartPolicyNever
 }
 
 func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error {
