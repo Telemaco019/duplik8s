@@ -46,6 +46,7 @@ func Execute() {
 }
 
 func init() {
+	defaultNamespace := "default"
 	defaultKubeconfig := ""
 	if home := homedir.HomeDir(); home != "" {
 		defaultKubeconfig = filepath.Join(home, ".kube", "config")
@@ -53,5 +54,6 @@ func init() {
 
 	configFlags := genericclioptions.NewConfigFlags(true)
 	configFlags.KubeConfig = &defaultKubeconfig
+	configFlags.Namespace = &defaultNamespace
 	configFlags.AddFlags(rootCmd.PersistentFlags())
 }
