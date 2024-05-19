@@ -52,8 +52,12 @@ license-check: license-eye ## Check all files have the license header
 license-fix: license-eye ## Add license header to files that still don't have it
 	$(LICENSE_EYE) header fix
 
+.PHONY: test
+test: ## Run tests.
+	go test -v ./...
+
 .PHONY: check
-check: fmt vet lint license-check ## Check the code
+check: fmt vet test license-check ## Check the code
 
 
 ##@ Build
