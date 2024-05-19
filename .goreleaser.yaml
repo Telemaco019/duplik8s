@@ -28,13 +28,13 @@ brews:
   - name: duplik8s
     description: kubectl plugin to duplicate resources in a Kubernetes cluster.
     homepage: https://github.com/Telemaco019/duplik8s
-    tap:
+    repository:
       owner: Telemaco019
       name: homebrew-duplik8s
     commit_author:
       name: Telemaco019
       email: m.zanotti019@gmail.com
-    folder: Formula
+    directory: Formula
 
 archives:
   - format: tar.gz
