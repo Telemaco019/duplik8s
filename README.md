@@ -5,7 +5,6 @@
 **Duplicate** 🔁 kubectl plugin to duplicate resources in a Kubernetes cluster.
 
 <p>
-    <a href="https://github.com/Telemaco019/duplik8s/releases"><img src="https://img.shields.io/github/release/Telemaco019/duplik8s.svg" alt="Latest Release"></a>
     <a href="https://github.com/Telemaco019/duplik8s/actions"><img src="https://github.com/Telemaco019/duplik8s/actions/workflows/ci.yaml/badge.svg" alt="Build Status"></a>
 </p>
 
@@ -21,6 +20,13 @@ amazing [k9s](https://github.com/derailed/k9s) ✨.
 Check out the installation instructions below to easily load it as a k9s plugin.
 
 ## Installation
+
+### Install with Homebrew (Mac/Linux)
+
+```sh
+$ brew tap Telemaco019/duplik8s
+$ brew install duplik8s
+```
 
 ### Install with Go
 
