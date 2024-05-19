@@ -27,7 +27,7 @@ Check out the installation instructions below to easily load it as a k9s plugin.
 ### Install with Go
 
 ```sh
-$ go install github.com/telemaco019/duplik8s/cmd@latest
+$ go install github.com/telemaco019/duplik8s/kubectl-duplicate@latest
 ```
 
 ### Use as k9s plugin
