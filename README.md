@@ -61,18 +61,47 @@ On MacOS, you can find the `plugins.yml` file at `~/Library/Application Support/
 
 For more information on k9s plugins, you can refer to the [official documentation](https://k9scli.io/topics/plugins).
 
+## Use cases
+
+**Scenario 1**: You've got a Pod running, but it's not behaving as expected.
+You need to dive in and debug the issue, maybe install some extra tools along the way.
+
+**Scenario 2**: You need to run some scripts or commands in the exact same environment as a running Pod,
+including all the environment variables, secrets, and configurations.
+
+In these cases, you don't want to risk messing with the live Pod.
+Instead, just use `duplik8s`! It duplicates the Pod with the same specs but keeps it idle so you can open a shell
+and troubleshoot without any disruptions. 🎉
+
+Skip the hassle of manually copying configurations, changing commands, and tweaking probes.
+With `duplik8s`, simply run `kubectl duplicate pod my-pod` and you're done! Want to customize? Just add flags. Easy
+peasy! ⚡
+
+Even better, if you're using `duplik8s` with `k9s`, just press `Ctrl-T` to duplicate the Pod and s to open a shell
+in one of its containers. 🚀
+
 ## Examples
 
-Duplicate a Pod:
+### Duplicate a Pod
 
 ```sh
 $ kubectl duplicate pod my-pod
 ```
 
+The cloned Pod will be identical to the original, but with probes disabled and commands overridden to keep it idle.
+
+### Run a specific command in a cloned Pod
+
+```sh
+$ kubectl duplicate pod nginx-pod --command-override "/bin/sh","-c","echo Hello, World"
+```
+
+With this, you can easily duplicate a Pod and run any command you want in the new instance.
+
 
 --- 
 
-## License 
+## License
 
 This project is licensed under the Apache License. See the [LICENSE](./LICENSE) file for details.
 
