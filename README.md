@@ -1,7 +1,5 @@
 # Duplik8s
 
-🚧 Work in progress!
-
 ---
 
 **Duplicate** 🔁 kubectl plugin to duplicate resources in a Kubernetes cluster.
