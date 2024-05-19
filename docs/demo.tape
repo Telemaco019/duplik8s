@@ -8,10 +8,12 @@ Type "k9s"
 Enter
 Sleep 3s
 Ctrl+T
-Sleep 5s
+Sleep 3s
 Type "j"
-Sleep 2s
+Sleep 3s
 Type "s"
 Sleep 1s
+Type "ls"
+Enter
+Sleep 2s
 Type "exit"
-Sleep 5s
