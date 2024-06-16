@@ -30,6 +30,6 @@ func Test_NoPodsAvailable(t *testing.T) {
 	)
 	cmd := NewRootCmd(podClient)
 	output, err := test.ExecuteCommand(cmd, "pod")
-	assert.Equal(t, "", output)
+	assert.NotEmpty(t, output)
 	assert.Error(t, err)
 }
