@@ -18,12 +18,15 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/telemaco019/duplik8s/pkg/pods"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/util/homedir"
 	"path/filepath"
 )
 
-func NewRootCmd() *cobra.Command {
+func NewRootCmd(
+	c pods.PodClient,
+) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use: "kubectl-duplicate",
 		Annotations: map[string]string{
@@ -35,7 +38,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	// setup default k8s config
+	// Setup kubeconfig flags
 	defaultNamespace := "default"
 	defaultKubeconfig := ""
 	if home := homedir.HomeDir(); home != "" {
@@ -47,7 +50,7 @@ func NewRootCmd() *cobra.Command {
 	configFlags.AddFlags(rootCmd.PersistentFlags())
 
 	// add subcommands
-	rootCmd.AddCommand(NewPodCmd())
+	rootCmd.AddCommand(NewPodCmd(c))
 
 	return rootCmd
 }

@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package main
+package cmd
 
 import (
-	"github.com/telemaco019/duplik8s/pkg/cmd"
-	"os"
+	"github.com/stretchr/testify/assert"
+	"github.com/telemaco019/duplik8s/pkg/test"
+	"github.com/telemaco019/duplik8s/pkg/test/mocks"
+	"testing"
 )
 
-func main() {
-	rootCmd := cmd.NewRootCmd(nil)
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
+func Test_NoPodsAvailable(t *testing.T) {
+	podClient := mocks.NewPodClient(
+		mocks.ListPodsResult{},
+		nil,
+	)
+	cmd := NewRootCmd(podClient)
+	output, err := test.ExecuteCommand(cmd, "pod")
+	assert.Equal(t, "", output)
+	assert.Error(t, err)
 }

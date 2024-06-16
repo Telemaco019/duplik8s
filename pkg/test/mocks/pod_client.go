@@ -14,17 +14,34 @@
  * limitations under the License.
  */
 
-package main
+package mocks
 
-import (
-	"github.com/telemaco019/duplik8s/pkg/cmd"
-	"os"
-)
+import "github.com/telemaco019/duplik8s/pkg/pods"
 
-func main() {
-	rootCmd := cmd.NewRootCmd(nil)
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+type ListPodsResult struct {
+	pods []string
+	err  error
+}
+
+type PodClient struct {
+	ListPodsResult     ListPodsResult
+	DuplicatePodResult error
+}
+
+func NewPodClient(
+	ListPodsResult ListPodsResult,
+	DuplicatePodResult error,
+) *PodClient {
+	return &PodClient{
+		ListPodsResult:     ListPodsResult,
+		DuplicatePodResult: DuplicatePodResult,
 	}
+}
+
+func (m *PodClient) ListPods(namespace string) ([]string, error) {
+	return []string{}, nil
+}
+
+func (m *PodClient) DuplicatePod(podName string, namespace string, opts pods.PodOverrideOptions) error {
+	return nil
 }

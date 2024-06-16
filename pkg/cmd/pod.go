@@ -45,7 +45,7 @@ func NewKubeOptions(cmd *cobra.Command, args []string) (utils.KubeOptions, error
 	return o, nil
 }
 
-func NewPodCmd() *cobra.Command {
+func NewPodCmd(podClient pods.PodClient) *cobra.Command {
 	podCmd := &cobra.Command{
 		Use:   "pod",
 		Short: "Duplicate a Pod.",
@@ -55,7 +55,12 @@ func NewPodCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			client, err := pods.NewClient(opts)
+			if podClient == nil {
+				podClient, err = pods.NewClient(opts)
+				if err != nil {
+					return err
+				}
+			}
 			if err != nil {
 				return err
 			}
@@ -77,7 +82,7 @@ func NewPodCmd() *cobra.Command {
 
 			var podName string
 			if len(args) == 0 {
-				podName, err = selectPod(client, opts.Namespace)
+				podName, err = selectPod(podClient, opts.Namespace)
 				if err != nil {
 					return err
 				}
@@ -85,7 +90,7 @@ func NewPodCmd() *cobra.Command {
 				podName = args[0]
 			}
 
-			return client.DuplicatePod(podName, opts.Namespace, options)
+			return podClient.DuplicatePod(podName, opts.Namespace, options)
 		},
 	}
 	podCmd.Flags().StringSlice(
@@ -102,7 +107,7 @@ func NewPodCmd() *cobra.Command {
 	return podCmd
 }
 
-func selectPod(client *pods.PodClient, namespace string) (string, error) {
+func selectPod(client pods.PodClient, namespace string) (string, error) {
 	availablePods, err := client.ListPods(namespace)
 	if err != nil {
 		return "", err
