@@ -18,42 +18,39 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/telemaco019/duplik8s/pkg/pods"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/util/homedir"
-	"os"
 	"path/filepath"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use: "kubectl-duplicate",
-	Annotations: map[string]string{
-		cobra.CommandDisplayNameAnnotation: "kubectl duplicate",
-	},
-	Short: "duplik8s is a kubectl plugin for duplicating Kubernetes resources.",
-	CompletionOptions: cobra.CompletionOptions{
-		DisableDefaultCmd: true,
-	},
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+func NewRootCmd(
+	c pods.PodClient,
+) *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use: "kubectl-duplicate",
+		Annotations: map[string]string{
+			cobra.CommandDisplayNameAnnotation: "kubectl duplicate",
+		},
+		Short: "duplik8s is a kubectl plugin for duplicating Kubernetes resources.",
+		CompletionOptions: cobra.CompletionOptions{
+			DisableDefaultCmd: true,
+		},
 	}
-}
 
-func init() {
+	// Setup kubeconfig flags
 	defaultNamespace := "default"
 	defaultKubeconfig := ""
 	if home := homedir.HomeDir(); home != "" {
 		defaultKubeconfig = filepath.Join(home, ".kube", "config")
 	}
-
 	configFlags := genericclioptions.NewConfigFlags(true)
 	configFlags.KubeConfig = &defaultKubeconfig
 	configFlags.Namespace = &defaultNamespace
 	configFlags.AddFlags(rootCmd.PersistentFlags())
+
+	// add subcommands
+	rootCmd.AddCommand(NewPodCmd(c))
+
+	return rootCmd
 }

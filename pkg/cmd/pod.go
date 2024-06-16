@@ -17,6 +17,8 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
 	"github.com/telemaco019/duplik8s/pkg/pods"
@@ -43,42 +45,54 @@ func NewKubeOptions(cmd *cobra.Command, args []string) (utils.KubeOptions, error
 	return o, nil
 }
 
-// podCmd represents the pod command
-var podCmd = &cobra.Command{
-	Use:   "pod",
-	Short: "Duplicate a Pod.",
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		opts, err := NewKubeOptions(cmd, args)
-		if err != nil {
-			return err
-		}
-		client, err := pods.NewClient(opts)
-		if err != nil {
-			return err
-		}
-		cmdOverride, err := cmd.Flags().GetStringSlice(flags.COMMAND_OVERRIDE)
-		if err != nil {
-			return err
-		}
-		argsOverride, err := cmd.Flags().GetStringSlice(flags.ARGS_OVERRIDE)
-		if err != nil {
-			return err
-		}
+func NewPodCmd(podClient pods.PodClient) *cobra.Command {
+	podCmd := &cobra.Command{
+		Use:   "pod",
+		Short: "Duplicate a Pod.",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			opts, err := NewKubeOptions(cmd, args)
+			if err != nil {
+				return err
+			}
+			if podClient == nil {
+				podClient, err = pods.NewClient(opts)
+				if err != nil {
+					return err
+				}
+			}
+			if err != nil {
+				return err
+			}
+			cmdOverride, err := cmd.Flags().GetStringSlice(flags.COMMAND_OVERRIDE)
+			if err != nil {
+				return err
+			}
+			argsOverride, err := cmd.Flags().GetStringSlice(flags.ARGS_OVERRIDE)
+			if err != nil {
+				return err
+			}
 
-		// Avoid printing usage information on errors
-		cmd.SilenceUsage = true
-		options := pods.PodOverrideOptions{
-			Command: cmdOverride,
-			Args:    argsOverride,
-		}
-		return client.DuplicatePod(args[0], opts.Namespace, options)
-	},
-}
+			// Avoid printing usage information on errors
+			cmd.SilenceUsage = true
+			options := pods.PodOverrideOptions{
+				Command: cmdOverride,
+				Args:    argsOverride,
+			}
 
-func init() {
-	rootCmd.AddCommand(podCmd)
+			var podName string
+			if len(args) == 0 {
+				podName, err = selectPod(podClient, opts.Namespace)
+				if err != nil {
+					return err
+				}
+			} else {
+				podName = args[0]
+			}
 
+			return podClient.DuplicatePod(podName, opts.Namespace, options)
+		},
+	}
 	podCmd.Flags().StringSlice(
 		flags.COMMAND_OVERRIDE,
 		[]string{"/bin/sh"},
@@ -89,4 +103,27 @@ func init() {
 		[]string{"-c", "trap 'exit 0' INT TERM KILL; while true; do sleep 1; done"},
 		"Override the command of each container in the Pod.",
 	)
+
+	return podCmd
+}
+
+func selectPod(client pods.PodClient, namespace string) (string, error) {
+	availablePods, err := client.ListPods(namespace)
+	if err != nil {
+		return "", err
+	}
+	if len(availablePods) == 0 {
+		return "", fmt.Errorf("no Pods found in namespace %q", namespace)
+	}
+	options := make([]huh.Option[string], len(availablePods))
+	for i, p := range availablePods {
+		options[i] = huh.NewOption(p, p)
+	}
+	var selectedPod string
+	err = huh.NewSelect[string]().
+		Title(fmt.Sprintf("Select a Pod [%s]", namespace)).
+		Options(options...).
+		Value(&selectedPod).
+		Run()
+	return selectedPod, err
 }

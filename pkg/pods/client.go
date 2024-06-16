@@ -29,17 +29,22 @@ const (
 	LABEL_DUPLICATED = "telemaco019.github.com/duplik8ted"
 )
 
-type PodClient struct {
+type PodClient interface {
+	ListPods(namespace string) ([]string, error)
+	DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error
+}
+
+type podClient struct {
 	clientset *kubernetes.Clientset
 	ctx       context.Context
 }
 
-func NewClient(opts utils.KubeOptions) (*PodClient, error) {
+func NewClient(opts utils.KubeOptions) (PodClient, error) {
 	clientset, err := utils.NewClientset(opts.Kubeconfig, opts.Kubecontext)
 	if err != nil {
 		return nil, err
 	}
-	return &PodClient{
+	return &podClient{
 		clientset: clientset,
 		ctx:       context.Background(),
 	}, nil
@@ -76,7 +81,19 @@ func (o PodOverrideOptions) Apply(pod *v1.Pod) {
 	pod.Spec.RestartPolicy = v1.RestartPolicyNever
 }
 
-func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error {
+func (c *podClient) ListPods(namespace string) ([]string, error) {
+	pods, err := c.clientset.CoreV1().Pods(namespace).List(c.ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var podNames []string
+	for _, pod := range pods.Items {
+		podNames = append(podNames, pod.Name)
+	}
+	return podNames, nil
+}
+
+func (c *podClient) DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error {
 	fmt.Printf("duplicating Pod %s\n", podName)
 
 	// fetch the pod
