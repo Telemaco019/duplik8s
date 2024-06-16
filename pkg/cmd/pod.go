@@ -17,6 +17,8 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
 	"github.com/telemaco019/duplik8s/pkg/pods"
@@ -47,7 +49,7 @@ func NewKubeOptions(cmd *cobra.Command, args []string) (utils.KubeOptions, error
 var podCmd = &cobra.Command{
 	Use:   "pod",
 	Short: "Duplicate a Pod.",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		opts, err := NewKubeOptions(cmd, args)
 		if err != nil {
@@ -72,8 +74,40 @@ var podCmd = &cobra.Command{
 			Command: cmdOverride,
 			Args:    argsOverride,
 		}
-		return client.DuplicatePod(args[0], opts.Namespace, options)
+
+		var podName string
+		if len(args) == 0 {
+			podName, err = selectPod(client, opts.Namespace)
+			if err != nil {
+				return err
+			}
+		} else {
+			podName = args[0]
+		}
+
+		return client.DuplicatePod(podName, opts.Namespace, options)
 	},
+}
+
+func selectPod(client *pods.PodClient, namespace string) (string, error) {
+	availablePods, err := client.ListPods(namespace)
+	if err != nil {
+		return "", err
+	}
+	if len(availablePods) == 0 {
+		return "", fmt.Errorf("no Pods found in namespace %q", namespace)
+	}
+	options := make([]huh.Option[string], len(availablePods))
+	for i, p := range availablePods {
+		options[i] = huh.NewOption(p, p)
+	}
+	var selectedPod string
+	err = huh.NewSelect[string]().
+		Title(fmt.Sprintf("Select a Pod [%s]", namespace)).
+		Options(options...).
+		Value(&selectedPod).
+		Run()
+	return selectedPod, err
 }
 
 func init() {

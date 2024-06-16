@@ -64,7 +64,7 @@ check: fmt vet test license-check ## Check the code
 
 .PHONY: build
 build: fmt vet ## Build binary.
-	go build -o bin/duplik8s main.go
+	go build -o bin/duplik8s kubectl-duplicate/kubectl-duplicate.go
 
 ##@ Build Dependencies
 

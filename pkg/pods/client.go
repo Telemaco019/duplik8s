@@ -76,6 +76,18 @@ func (o PodOverrideOptions) Apply(pod *v1.Pod) {
 	pod.Spec.RestartPolicy = v1.RestartPolicyNever
 }
 
+func (c PodClient) ListPods(namespace string) ([]string, error) {
+	pods, err := c.clientset.CoreV1().Pods(namespace).List(c.ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var podNames []string
+	for _, pod := range pods.Items {
+		podNames = append(podNames, pod.Name)
+	}
+	return podNames, nil
+}
+
 func (c PodClient) DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error {
 	fmt.Printf("duplicating Pod %s\n", podName)
 
