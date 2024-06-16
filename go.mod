@@ -3,6 +3,7 @@ module github.com/telemaco019/duplik8s
 go 1.22.4
 
 require (
+	github.com/charmbracelet/huh v0.4.2
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	k8s.io/api v0.30.2
