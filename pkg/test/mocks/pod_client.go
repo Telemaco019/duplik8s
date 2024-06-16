@@ -38,10 +38,10 @@ func NewPodClient(
 	}
 }
 
-func (m *PodClient) ListPods(namespace string) ([]string, error) {
-	return []string{}, nil
+func (c *PodClient) ListPods(namespace string) ([]string, error) {
+	return c.ListPodsResult.pods, c.ListPodsResult.err
 }
 
-func (m *PodClient) DuplicatePod(podName string, namespace string, opts pods.PodOverrideOptions) error {
-	return nil
+func (c *PodClient) DuplicatePod(podName string, namespace string, opts pods.PodOverrideOptions) error {
+	return c.DuplicatePodResult
 }
