@@ -18,8 +18,13 @@ package main
 
 import (
 	"github.com/telemaco019/duplik8s/pkg/cmd"
+	"os"
 )
 
 func main() {
-	cmd.Execute()
+	rootCmd := cmd.NewRootCmd()
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }
