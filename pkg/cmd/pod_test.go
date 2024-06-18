@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/telemaco019/duplik8s/pkg/test"
 	"github.com/telemaco019/duplik8s/pkg/test/mocks"
@@ -32,4 +33,24 @@ func Test_NoPodsAvailable(t *testing.T) {
 	output, err := test.ExecuteCommand(cmd, "pod")
 	assert.NotEmpty(t, output)
 	assert.Error(t, err)
+}
+
+func Test_Success(t *testing.T) {
+	podClient := mocks.NewPodClient(
+		mocks.ListPodsResult{},
+		nil,
+	)
+	cmd := NewRootCmd(podClient)
+	_, err := test.ExecuteCommand(cmd, "pod", "pod-1")
+	assert.NoError(t, err)
+}
+
+func Test_DuplicateError(t *testing.T) {
+	podClient := mocks.NewPodClient(
+		mocks.ListPodsResult{},
+		fmt.Errorf("error"),
+	)
+	cmd := NewRootCmd(podClient)
+	_, err := test.ExecuteCommand(cmd, "pod", "pod-1")
+	assert.EqualError(t, err, "error")
 }

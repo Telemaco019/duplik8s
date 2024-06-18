@@ -63,24 +63,6 @@ type PodOverrideOptions struct {
 	StartupProbe *v1.Probe
 }
 
-func (o PodOverrideOptions) Apply(pod *v1.Pod) {
-	// Override command
-	if o.Command != nil {
-		for i := range pod.Spec.Containers {
-			pod.Spec.Containers[i].Command = o.Command
-			pod.Spec.Containers[i].Args = o.Args
-			pod.Spec.Containers[i].ReadinessProbe = o.ReadinessProbe
-			pod.Spec.Containers[i].LivenessProbe = o.LivenessProbe
-			pod.Spec.Containers[i].ReadinessProbe = o.ReadinessProbe
-			pod.Spec.Containers[i].StartupProbe = o.StartupProbe
-		}
-	}
-	// Remove assigned nod
-	pod.Spec.NodeName = ""
-	// Override restart policy
-	pod.Spec.RestartPolicy = v1.RestartPolicyNever
-}
-
 func (c *podClient) ListPods(namespace string) ([]string, error) {
 	pods, err := c.clientset.CoreV1().Pods(namespace).List(c.ctx, metav1.ListOptions{})
 	if err != nil {
@@ -121,7 +103,13 @@ func (c *podClient) DuplicatePod(podName string, namespace string, opts PodOverr
 		},
 		Spec: pod.Spec,
 	}
-	opts.Apply(&newPod)
+
+	// override the pod spec
+	configurator := NewPodConfigurator(c.clientset, opts)
+	err = configurator.OverrideSpec(c.ctx, &newPod)
+	if err != nil {
+		return err
+	}
 
 	// create the new pod
 	_, err = c.clientset.CoreV1().Pods(pod.Namespace).Create(c.ctx, &newPod, metav1.CreateOptions{})
