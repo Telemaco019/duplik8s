@@ -19,8 +19,8 @@ package mocks
 import "github.com/telemaco019/duplik8s/pkg/pods"
 
 type ListPodsResult struct {
-	pods []string
-	err  error
+	Pods []string
+	Err  error
 }
 
 type PodClient struct {
@@ -39,7 +39,7 @@ func NewPodClient(
 }
 
 func (c *PodClient) ListPods(namespace string) ([]string, error) {
-	return c.ListPodsResult.pods, c.ListPodsResult.err
+	return c.ListPodsResult.Pods, c.ListPodsResult.Err
 }
 
 func (c *PodClient) DuplicatePod(podName string, namespace string, opts pods.PodOverrideOptions) error {
