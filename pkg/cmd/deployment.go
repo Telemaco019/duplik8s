@@ -19,26 +19,26 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/pods"
+	"github.com/telemaco019/duplik8s/pkg/deployments"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
-func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
+func NewDeployCmd(client core.Duplik8sClient) *cobra.Command {
 	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
-		if podClient == nil {
-			return pods.NewClient(opts)
+		if client == nil {
+			return deployments.NewClient(opts)
 		}
-		return podClient, nil
+		return client, nil
 	}
-	podCmd := &cobra.Command{
-		Use:   "pod",
-		Short: "Duplicate a Pod.",
+	deployCmd := &cobra.Command{
+		Use:   "deploy",
+		Short: "Duplicate a Deployment.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			run := newDuplicateCmd(factory, "Select a Pod")
+			run := newDuplicateCmd(factory, "Select a Deployment")
 			return run(cmd, args)
 		},
 	}
-	addOverrideFlags(podCmd)
-	return podCmd
+	addOverrideFlags(deployCmd)
+	return deployCmd
 }

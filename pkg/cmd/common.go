@@ -14,17 +14,30 @@
  * limitations under the License.
  */
 
-package main
+package cmd
 
 import (
-	"github.com/telemaco019/duplik8s/pkg/cmd"
-	"os"
+	"github.com/spf13/cobra"
+	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
+	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
-func main() {
-	rootCmd := cmd.NewRootCmd(nil, nil)
-	err := rootCmd.Execute()
+func NewKubeOptions(cmd *cobra.Command, _ []string) (utils.KubeOptions, error) {
+	var err error
+
+	o := utils.KubeOptions{}
+	o.Kubeconfig, err = cmd.Flags().GetString(flags.KUBECONFIG)
 	if err != nil {
-		os.Exit(1)
+		return o, err
 	}
+	o.Kubecontext, err = cmd.Flags().GetString(flags.KUBECONTEXT)
+	if err != nil {
+		return o, err
+	}
+	o.Namespace, err = cmd.Flags().GetString(flags.NAMESPACE)
+	if err != nil {
+		return o, err
+	}
+
+	return o, nil
 }

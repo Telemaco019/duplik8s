@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package cmd
+package utils
 
 import (
-	"github.com/spf13/cobra"
+	"fmt"
+	"github.com/charmbracelet/huh"
 	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/pods"
-	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
-func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
-	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
-		if podClient == nil {
-			return pods.NewClient(opts)
-		}
-		return podClient, nil
+func SelectItem(client core.Duplik8sClient, namespace, selectMessage string) (core.DuplicableObject, error) {
+	var selected = core.DuplicableObject{}
+	objs, err := client.List(namespace)
+	if err != nil {
+		return selected, err
 	}
-	podCmd := &cobra.Command{
-		Use:   "pod",
-		Short: "Duplicate a Pod.",
-		Args:  cobra.MaximumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			run := newDuplicateCmd(factory, "Select a Pod")
-			return run(cmd, args)
-		},
+	if len(objs) == 0 {
+		return selected, fmt.Errorf("no Pods found in namespace %q", namespace)
 	}
-	addOverrideFlags(podCmd)
-	return podCmd
+	options := make([]huh.Option[core.DuplicableObject], len(objs))
+	for i, o := range objs {
+		options[i] = huh.NewOption(o.Name, o)
+	}
+	err = huh.NewSelect[core.DuplicableObject]().
+		Title(fmt.Sprintf("%s [%s]", selectMessage, namespace)).
+		Options(options...).
+		Value(&selected).
+		Run()
+	return selected, err
 }

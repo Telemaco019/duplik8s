@@ -29,7 +29,7 @@ func Test_NoPodsAvailable(t *testing.T) {
 		mocks.ListPodsResult{},
 		nil,
 	)
-	cmd := NewRootCmd(podClient)
+	cmd := NewRootCmd(podClient, nil)
 	output, err := test.ExecuteCommand(cmd, "pod")
 	assert.NotEmpty(t, output)
 	assert.Error(t, err)
@@ -40,7 +40,7 @@ func Test_Success(t *testing.T) {
 		mocks.ListPodsResult{},
 		nil,
 	)
-	cmd := NewRootCmd(podClient)
+	cmd := NewRootCmd(podClient, nil)
 	_, err := test.ExecuteCommand(cmd, "pod", "pod-1")
 	assert.NoError(t, err)
 }
@@ -50,7 +50,7 @@ func Test_DuplicateError(t *testing.T) {
 		mocks.ListPodsResult{},
 		fmt.Errorf("error"),
 	)
-	cmd := NewRootCmd(podClient)
+	cmd := NewRootCmd(podClient, nil)
 	_, err := test.ExecuteCommand(cmd, "pod", "pod-1")
 	assert.EqualError(t, err, "error")
 }

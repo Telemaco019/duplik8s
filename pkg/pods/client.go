@@ -19,72 +19,51 @@ package pods
 import (
 	"context"
 	"fmt"
+	"github.com/telemaco019/duplik8s/pkg/core"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
-const (
-	LABEL_DUPLICATED = "telemaco019.github.com/duplik8ted"
-)
-
-type PodClient interface {
-	ListPods(namespace string) ([]string, error)
-	DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error
-}
-
-type podClient struct {
+type PodClient struct {
 	clientset *kubernetes.Clientset
 	ctx       context.Context
 }
 
-func NewClient(opts utils.KubeOptions) (PodClient, error) {
+func NewClient(opts utils.KubeOptions) (*PodClient, error) {
 	clientset, err := utils.NewClientset(opts.Kubeconfig, opts.Kubecontext)
 	if err != nil {
 		return nil, err
 	}
-	return &podClient{
+	return &PodClient{
 		clientset: clientset,
 		ctx:       context.Background(),
 	}, nil
 }
 
-type PodOverrideOptions struct {
-	// Command overrides the default command of each container.
-	Command []string
-	// Args overrides the default args of each container.
-	Args []string
-	// ReadinessProbe overrides the readiness probe of each container.
-	ReadinessProbe *v1.Probe
-	// LivenessProbe overrides the liveness probe of each container.
-	LivenessProbe *v1.Probe
-	// StartupProbe overrides the startup probe of each container.
-	StartupProbe *v1.Probe
-}
-
-func (c *podClient) ListPods(namespace string) ([]string, error) {
+func (c *PodClient) List(namespace string) ([]core.DuplicableObject, error) {
 	pods, err := c.clientset.CoreV1().Pods(namespace).List(c.ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
-	var podNames []string
+	var objs []core.DuplicableObject
 	for _, pod := range pods.Items {
-		podNames = append(podNames, pod.Name)
+		objs = append(objs, core.NewPod(pod.Name, pod.Namespace))
 	}
-	return podNames, nil
+	return objs, nil
 }
 
-func (c *podClient) DuplicatePod(podName string, namespace string, opts PodOverrideOptions) error {
-	fmt.Printf("duplicating Pod %s\n", podName)
+func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
+	fmt.Printf("duplicating pod %s\n", obj.Name)
 
 	// fetch the pod
-	pod, err := c.clientset.CoreV1().Pods(namespace).Get(c.ctx, podName, metav1.GetOptions{})
+	pod, err := c.clientset.CoreV1().Pods(obj.Namespace).Get(c.ctx, obj.Name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
-	if pod.Labels[LABEL_DUPLICATED] == "true" {
-		return fmt.Errorf("pod %s is already duplicated", podName)
+	if pod.Labels[core.LABEL_DUPLICATED] == "true" {
+		return fmt.Errorf("pod %s is already duplicated", obj.Name)
 	}
 
 	// create a new pod and override the spec
@@ -98,15 +77,15 @@ func (c *podClient) DuplicatePod(podName string, namespace string, opts PodOverr
 			Name:      newName,
 			Namespace: pod.Namespace,
 			Labels: map[string]string{
-				LABEL_DUPLICATED: "true",
+				core.LABEL_DUPLICATED: "true",
 			},
 		},
 		Spec: pod.Spec,
 	}
 
 	// override the pod spec
-	configurator := NewPodConfigurator(c.clientset, opts)
-	err = configurator.OverrideSpec(c.ctx, &newPod)
+	configurator := NewConfigurator(c.clientset, opts)
+	err = configurator.OverrideSpec(c.ctx, obj.Namespace, &newPod.Spec)
 	if err != nil {
 		return err
 	}
@@ -116,6 +95,6 @@ func (c *podClient) DuplicatePod(podName string, namespace string, opts PodOverr
 	if err != nil {
 		return err
 	}
-	fmt.Printf("pod %s duplicated in %s\n", podName, newName)
+	fmt.Printf("pod %q duplicated in %q\n", obj.Name, newName)
 	return nil
 }

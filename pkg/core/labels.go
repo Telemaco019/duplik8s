@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package main
+package core
 
-import (
-	"github.com/telemaco019/duplik8s/pkg/cmd"
-	"os"
+const (
+	LABEL_DUPLICATED = "telemaco019.github.com/duplik8ted"
 )
-
-func main() {
-	rootCmd := cmd.NewRootCmd(nil, nil)
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
