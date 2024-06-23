@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-	rootCmd := cmd.NewRootCmd(nil)
+	rootCmd := cmd.NewRootCmd(nil, nil)
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)

@@ -18,70 +18,27 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
 	"github.com/telemaco019/duplik8s/pkg/core"
 	"github.com/telemaco019/duplik8s/pkg/pods"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
 func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
+	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
+		if podClient == nil {
+			return pods.NewClient(opts)
+		}
+		return podClient, nil
+	}
 	podCmd := &cobra.Command{
 		Use:   "pod",
 		Short: "Duplicate a Pod.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			opts, err := NewKubeOptions(cmd, args)
-			if err != nil {
-				return err
-			}
-			if podClient == nil {
-				podClient, err = pods.NewClient(opts)
-				if err != nil {
-					return err
-				}
-			}
-			if err != nil {
-				return err
-			}
-			cmdOverride, err := cmd.Flags().GetStringSlice(flags.COMMAND_OVERRIDE)
-			if err != nil {
-				return err
-			}
-			argsOverride, err := cmd.Flags().GetStringSlice(flags.ARGS_OVERRIDE)
-			if err != nil {
-				return err
-			}
-
-			// Avoid printing usage information on errors
-			cmd.SilenceUsage = true
-			options := core.PodOverrideOptions{
-				Command: cmdOverride,
-				Args:    argsOverride,
-			}
-
-			var obj core.DuplicableObject
-			if len(args) == 0 {
-				obj, err = utils.SelectItem(podClient, opts.Namespace, "Select a Pod")
-				if err != nil {
-					return err
-				}
-			} else {
-				obj = core.NewPod(args[0], opts.Namespace)
-			}
-
-			return podClient.Duplicate(obj, options)
+			run := newDuplicateCmd(factory, "Select a Pod")
+			return run(cmd, args)
 		},
 	}
-	podCmd.Flags().StringSlice(
-		flags.COMMAND_OVERRIDE,
-		[]string{"/bin/sh"},
-		"Override the command of each container in the Pod.",
-	)
-	podCmd.Flags().StringSlice(
-		flags.ARGS_OVERRIDE,
-		[]string{"-c", "trap 'exit 0' INT TERM KILL; while true; do sleep 1; done"},
-		"Override the command of each container in the Pod.",
-	)
-
+	addOverrideFlags(podCmd)
 	return podCmd
 }

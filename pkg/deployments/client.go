@@ -56,7 +56,7 @@ func (c *DeploymentClient) List(namespace string) ([]core.DuplicableObject, erro
 }
 
 func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
-	fmt.Printf("duplicating Deployment %s\n", obj.Name)
+	fmt.Printf("duplicating deployment %s\n", obj.Name)
 
 	// fetch the Deployment
 	deploy, err := c.clientset.AppsV1().Deployments(obj.Namespace).Get(c.ctx, obj.Name, metav1.GetOptions{})
@@ -96,6 +96,6 @@ func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.PodOve
 	if err != nil {
 		return err
 	}
-	fmt.Printf("deployment %s duplicated in %s\n", obj.Name, newName)
+	fmt.Printf("deployment %q duplicated in %q\n", obj.Name, newName)
 	return nil
 }

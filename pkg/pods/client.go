@@ -55,7 +55,7 @@ func (c *PodClient) List(namespace string) ([]core.DuplicableObject, error) {
 }
 
 func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
-	fmt.Printf("duplicating Pod %s\n", obj.Name)
+	fmt.Printf("duplicating pod %s\n", obj.Name)
 
 	// fetch the pod
 	pod, err := c.clientset.CoreV1().Pods(obj.Namespace).Get(c.ctx, obj.Name, metav1.GetOptions{})
@@ -95,6 +95,6 @@ func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOp
 	if err != nil {
 		return err
 	}
-	fmt.Printf("pod %s duplicated in %s\n", obj.Name, newName)
+	fmt.Printf("pod %q duplicated in %q\n", obj.Name, newName)
 	return nil
 }

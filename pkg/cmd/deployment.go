@@ -18,70 +18,27 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
 	"github.com/telemaco019/duplik8s/pkg/core"
 	"github.com/telemaco019/duplik8s/pkg/deployments"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
-func NewDeployCmd(client *deployments.DeploymentClient) *cobra.Command {
-	podCmd := &cobra.Command{
+func NewDeployCmd(client core.Duplik8sClient) *cobra.Command {
+	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
+		if client == nil {
+			return deployments.NewClient(opts)
+		}
+		return client, nil
+	}
+	deployCmd := &cobra.Command{
 		Use:   "deploy",
 		Short: "Duplicate a Deployment.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			opts, err := NewKubeOptions(cmd, args)
-			if err != nil {
-				return err
-			}
-			if client == nil {
-				client, err = deployments.NewClient(opts)
-				if err != nil {
-					return err
-				}
-			}
-			if err != nil {
-				return err
-			}
-			cmdOverride, err := cmd.Flags().GetStringSlice(flags.COMMAND_OVERRIDE)
-			if err != nil {
-				return err
-			}
-			argsOverride, err := cmd.Flags().GetStringSlice(flags.ARGS_OVERRIDE)
-			if err != nil {
-				return err
-			}
-
-			// Avoid printing usage information on errors
-			cmd.SilenceUsage = true
-			options := core.PodOverrideOptions{
-				Command: cmdOverride,
-				Args:    argsOverride,
-			}
-
-			var obj core.DuplicableObject
-			if len(args) == 0 {
-				obj, err = utils.SelectItem(client, opts.Namespace, "Select a Deployment")
-				if err != nil {
-					return err
-				}
-			} else {
-				obj = core.NewPod(args[0], opts.Namespace)
-			}
-
-			return client.Duplicate(obj, options)
+			run := newDuplicateCmd(factory, "Select a Deployment")
+			return run(cmd, args)
 		},
 	}
-	podCmd.Flags().StringSlice(
-		flags.COMMAND_OVERRIDE,
-		[]string{"/bin/sh"},
-		"Override the command of each container in the Pod.",
-	)
-	podCmd.Flags().StringSlice(
-		flags.ARGS_OVERRIDE,
-		[]string{"-c", "trap 'exit 0' INT TERM KILL; while true; do sleep 1; done"},
-		"Override the command of each container in the Pod.",
-	)
-
-	return podCmd
+	addOverrideFlags(deployCmd)
+	return deployCmd
 }

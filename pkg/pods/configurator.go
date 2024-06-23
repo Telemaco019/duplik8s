@@ -60,9 +60,6 @@ func (c PodConfigurator) OverrideSpec(ctx context.Context, namespace string, pod
 		podSpec.NodeName = ""
 	}
 
-	// Override restart policy
-	podSpec.RestartPolicy = v1.RestartPolicyNever
-
 	return nil
 }
 
