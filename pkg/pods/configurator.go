@@ -18,6 +18,7 @@ package pods
 
 import (
 	"context"
+	"github.com/telemaco019/duplik8s/pkg/core"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -25,30 +26,30 @@ import (
 
 type PodConfigurator struct {
 	clientset *kubernetes.Clientset
-	options   PodOverrideOptions
+	options   core.PodOverrideOptions
 }
 
-func NewPodConfigurator(clientset *kubernetes.Clientset, options PodOverrideOptions) PodConfigurator {
+func NewConfigurator(clientset *kubernetes.Clientset, options core.PodOverrideOptions) PodConfigurator {
 	return PodConfigurator{
 		clientset: clientset,
 		options:   options,
 	}
 }
 
-func (c PodConfigurator) OverrideSpec(ctx context.Context, pod *v1.Pod) error {
+func (c PodConfigurator) OverrideSpec(ctx context.Context, namespace string, podSpec *v1.PodSpec) error {
 	// Override command
 	if c.options.Command != nil {
-		for i := range pod.Spec.Containers {
-			pod.Spec.Containers[i].Command = c.options.Command
-			pod.Spec.Containers[i].Args = c.options.Args
-			pod.Spec.Containers[i].ReadinessProbe = c.options.ReadinessProbe
-			pod.Spec.Containers[i].LivenessProbe = c.options.LivenessProbe
-			pod.Spec.Containers[i].ReadinessProbe = c.options.ReadinessProbe
-			pod.Spec.Containers[i].StartupProbe = c.options.StartupProbe
+		for i := range podSpec.Containers {
+			podSpec.Containers[i].Command = c.options.Command
+			podSpec.Containers[i].Args = c.options.Args
+			podSpec.Containers[i].ReadinessProbe = c.options.ReadinessProbe
+			podSpec.Containers[i].LivenessProbe = c.options.LivenessProbe
+			podSpec.Containers[i].ReadinessProbe = c.options.ReadinessProbe
+			podSpec.Containers[i].StartupProbe = c.options.StartupProbe
 		}
 	}
 
-	hasMountOncePvc, err := c.hasMountOncePvc(ctx, *pod)
+	hasMountOncePvc, err := c.hasMountOncePvc(ctx, namespace, *podSpec)
 	if err != nil {
 		return err
 	}
@@ -56,21 +57,21 @@ func (c PodConfigurator) OverrideSpec(ctx context.Context, pod *v1.Pod) error {
 	// If the Pod does not have any PVC with mount once policy, then remove the node name
 	// to allow the scheduler to schedule the pod on any node
 	if !hasMountOncePvc {
-		pod.Spec.NodeName = ""
+		podSpec.NodeName = ""
 	}
 
 	// Override restart policy
-	pod.Spec.RestartPolicy = v1.RestartPolicyNever
+	podSpec.RestartPolicy = v1.RestartPolicyNever
 
 	return nil
 }
 
-func (c PodConfigurator) hasMountOncePvc(ctx context.Context, pod v1.Pod) (bool, error) {
-	for _, volume := range pod.Spec.Volumes {
+func (c PodConfigurator) hasMountOncePvc(ctx context.Context, namespace string, podSpec v1.PodSpec) (bool, error) {
+	for _, volume := range podSpec.Volumes {
 		if volume.PersistentVolumeClaim != nil {
 			pvc, err := c.clientset.
 				CoreV1().
-				PersistentVolumeClaims(pod.Namespace).
+				PersistentVolumeClaims(namespace).
 				Get(ctx, volume.PersistentVolumeClaim.ClaimName, metav1.GetOptions{})
 			if err != nil {
 				return false, err

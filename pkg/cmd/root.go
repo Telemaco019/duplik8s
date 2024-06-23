@@ -18,14 +18,14 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/pods"
+	"github.com/telemaco019/duplik8s/pkg/core"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/util/homedir"
 	"path/filepath"
 )
 
 func NewRootCmd(
-	c pods.PodClient,
+	podClient core.Duplik8sClient,
 ) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use: "kubectl-duplicate",
@@ -50,7 +50,7 @@ func NewRootCmd(
 	configFlags.AddFlags(rootCmd.PersistentFlags())
 
 	// add subcommands
-	rootCmd.AddCommand(NewPodCmd(c))
+	rootCmd.AddCommand(NewPodCmd(podClient))
 
 	return rootCmd
 }

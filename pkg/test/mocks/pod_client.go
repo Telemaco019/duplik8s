@@ -16,11 +16,24 @@
 
 package mocks
 
-import "github.com/telemaco019/duplik8s/pkg/pods"
+import (
+	"github.com/telemaco019/duplik8s/pkg/core"
+)
 
 type ListPodsResult struct {
-	Pods []string
+	Objs []core.DuplicableObject
 	Err  error
+}
+
+func NewListPodResults(pods []string, namespace string, err error) ListPodsResult {
+	var objs = make([]core.DuplicableObject, 0)
+	for _, pod := range pods {
+		objs = append(objs, core.NewPod(pod, namespace))
+	}
+	return ListPodsResult{
+		Objs: objs,
+		Err:  err,
+	}
 }
 
 type PodClient struct {
@@ -38,10 +51,10 @@ func NewPodClient(
 	}
 }
 
-func (c *PodClient) ListPods(namespace string) ([]string, error) {
-	return c.ListPodsResult.Pods, c.ListPodsResult.Err
+func (c *PodClient) List(_ string) ([]core.DuplicableObject, error) {
+	return c.ListPodsResult.Objs, c.ListPodsResult.Err
 }
 
-func (c *PodClient) DuplicatePod(podName string, namespace string, opts pods.PodOverrideOptions) error {
+func (c *PodClient) Duplicate(_ core.DuplicableObject, __ core.PodOverrideOptions) error {
 	return c.DuplicatePodResult
 }

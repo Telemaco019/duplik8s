@@ -20,22 +20,22 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
 	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/pods"
+	"github.com/telemaco019/duplik8s/pkg/deployments"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
-func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
+func NewDeployCmd(client *deployments.DeploymentClient) *cobra.Command {
 	podCmd := &cobra.Command{
-		Use:   "pod",
-		Short: "Duplicate a Pod.",
+		Use:   "deploy",
+		Short: "Duplicate a Deployment.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts, err := NewKubeOptions(cmd, args)
 			if err != nil {
 				return err
 			}
-			if podClient == nil {
-				podClient, err = pods.NewClient(opts)
+			if client == nil {
+				client, err = deployments.NewClient(opts)
 				if err != nil {
 					return err
 				}
@@ -61,7 +61,7 @@ func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
 
 			var obj core.DuplicableObject
 			if len(args) == 0 {
-				obj, err = utils.SelectItem(podClient, opts.Namespace, "Select a Pod")
+				obj, err = utils.SelectItem(client, opts.Namespace, "Select a Deployment")
 				if err != nil {
 					return err
 				}
@@ -69,7 +69,7 @@ func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
 				obj = core.NewPod(args[0], opts.Namespace)
 			}
 
-			return podClient.Duplicate(obj, options)
+			return client.Duplicate(obj, options)
 		},
 	}
 	podCmd.Flags().StringSlice(
