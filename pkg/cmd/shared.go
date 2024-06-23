@@ -32,6 +32,9 @@ func newDuplicateCmd(factory duplik8sClientFactory, selectMessage string) func(c
 			return err
 		}
 		client, err := factory(opts)
+		if err != nil {
+			return err
+		}
 		cmdOverride, err := cmd.Flags().GetStringSlice(flags.COMMAND_OVERRIDE)
 		if err != nil {
 			return err
