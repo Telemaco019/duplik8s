@@ -53,6 +53,7 @@ func NewRootCmd(
 	// add subcommands
 	rootCmd.AddCommand(NewPodCmd(podClient))
 	rootCmd.AddCommand(NewDeployCmd(deployClient))
+	rootCmd.AddCommand(NewStatefulSetCmd(deployClient))
 
 	return rootCmd
 }

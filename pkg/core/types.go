@@ -21,8 +21,9 @@ import v1 "k8s.io/api/core/v1"
 type DuplicableObjectKind string
 
 const (
-	KindDeployment DuplicableObjectKind = "Deployment"
-	KindPod        DuplicableObjectKind = "Pod"
+	KindDeployment  DuplicableObjectKind = "Deployment"
+	KindStatefulSet DuplicableObjectKind = "StatefulSet"
+	KindPod         DuplicableObjectKind = "Pod"
 )
 
 type PodOverrideOptions struct {
@@ -55,6 +56,14 @@ func NewPod(name, namespace string) DuplicableObject {
 func NewDeployment(name, namespace string) DuplicableObject {
 	return DuplicableObject{
 		Kind:      KindDeployment,
+		Name:      name,
+		Namespace: namespace,
+	}
+}
+
+func NewStatefulSet(name, namespace string) DuplicableObject {
+	return DuplicableObject{
+		Kind:      KindStatefulSet,
 		Name:      name,
 		Namespace: namespace,
 	}
