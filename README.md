@@ -42,6 +42,13 @@ $ go install github.com/telemaco019/duplik8s/kubectl-duplicate@latest
 
 ### Use as k9s plugin
 
+<details>
+<summary><b> Demo </b></summary>
+
+![](./docs/demo-k9s.gif)
+
+</details>
+
 As you might have guessed, **duplik8s** shines when used in combination with the
 amazing [k9s](https://github.com/derailed/k9s) ✨.
 
