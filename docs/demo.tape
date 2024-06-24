@@ -1,7 +1,6 @@
 Output demo.gif
 
-Set Width 2400
-Set Height 1200
+Set Width 1400
 Set LineHeight 1.8
 
 
