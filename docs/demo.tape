@@ -1,19 +1,31 @@
 Output demo.gif
 
-Set Width 2400
-Set Height 1200
+Set Width 1400
+Set LineHeight 1.8
+
 
 Set Shell zsh
-Type "k9s"
-Enter
-Sleep 3s
-Ctrl+T
-Sleep 3s
-Type "j"
-Sleep 3s
-Type "s"
-Sleep 1s
-Type "ls"
+
+Type "kubectl duplicate deploy -n my-namespace"
 Enter
 Sleep 2s
-Type "exit"
+Type "j"
+Sleep 300ms
+Type "j"
+Sleep 1s
+Enter
+Type "kubectl get deploy -n my-namespace"
+Enter
+Sleep 3s
+
+Type "kubectl duplicate pod -n my-namespace"
+Enter
+Sleep 2s
+Type "j"
+Sleep 300ms
+Type "j"
+Sleep 1s
+Enter
+Type "kubectl get pods -n my-namespace"
+Enter
+Sleep 3s
