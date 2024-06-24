@@ -14,7 +14,6 @@
 
 **duplik8s** allows you to easily duplicate Kubernetes Pods with overridden commands and configurations. This is useful
 for testing, debugging, and development purposes.
-
 Think of **duplik8s** as
 [kubectl debug --copy-to](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#copying-a-pod-while-changing-its-command)
 on steroids:
