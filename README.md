@@ -26,6 +26,12 @@ on steroids:
 
 ## Installation
 
+### Install with [Krew](https://krew.sigs.k8s.io/docs/user-guide/quickstart/)
+
+```sh
+$ kubectl krew install duplicate
+```
+
 ### Install with Homebrew (Mac/Linux)
 
 ```sh
