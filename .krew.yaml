@@ -1,0 +1,48 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: duplicate
+spec:
+  version: {{ .TagName }}
+  homepage: https://github.com/Telemaco019/duplik8s
+  shortDescription: Duplicate Pods in a Kubernetes cluster.
+  description: |
+    This plugin makes it super easy to duplicate Kubernetes Pods with overridden commands and configurations. 
+    It's similar to `kubectl debug --copy-to`, but with more features and flexibility.
+  platforms:
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: amd64
+      {{addURIAndSha "https://github.com/Telemaco019/duplik8s/releases/download/{{ .TagName }}/duplik8s_Darwin_x86_64.tar.gz" .TagName | indent 6 }}
+      bin: duplik8s
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: arm64
+      {{addURIAndSha "https://github.com/Telemaco019/duplik8s/releases/download/{{ .TagName }}/duplik8s_Darwin_arm64.tar.gz" .TagName | indent 6 }}
+      bin: duplik8s
+    - selector:
+        matchLabels:
+          os: linux
+          arch: amd64
+      {{addURIAndSha "https://github.com/Telemaco019/duplik8s/releases/download/{{ .TagName }}/duplik8s_Linux_x86_64.tar.gz" .TagName | indent 6 }}
+      bin: duplik8s
+    - selector:
+        matchLabels:
+          os: linux
+          arch: arm64
+      {{addURIAndSha "https://github.com/Telemaco019/duplik8s/releases/download/{{ .TagName }}/duplik8s_Linux_arm64.tar.gz" .TagName | indent 6 }}
+      bin: duplik8s
+    - selector:
+        matchLabels:
+          os: windows
+          arch: amd64
+      {{addURIAndSha "https://github.com/Telemaco019/duplik8s/releases/download/{{ .TagName }}/duplik8s_Windows_x86_64.zip" .TagName | indent 6 }}
+      bin: duplik8s.exe
+    - selector:
+        matchLabels:
+          os: windows
+          arch: arm64
+      {{addURIAndSha "https://github.com/Telemaco019/duplik8s/releases/download/{{ .TagName }}/duplik8s_Windows_arm64.zip" .TagName | indent 6 }}
+      bin: duplik8s.exe
