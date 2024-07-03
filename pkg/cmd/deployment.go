@@ -18,24 +18,24 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/pkg/duplicators"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
-func NewDeployCmd(client core.Duplik8sClient) *cobra.Command {
-	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
-		if client == nil {
-			return clients.NewDeploymentClient(opts)
+func NewDeployCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
+	factory := func(opts utils.KubeOptions) (core.Duplicator, error) {
+		if duplicator == nil {
+			return duplicators.NewDeploymentClient(opts)
 		}
-		return client, nil
+		return duplicator, nil
 	}
 	deployCmd := &cobra.Command{
 		Use:   "deploy",
 		Short: "Duplicate a Deployment.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			run := newDuplicateCmd(factory, "Select a Deployment")
+			run := newDuplicateCmd(factory, client, "Select a Deployment")
 			return run(cmd, args)
 		},
 	}

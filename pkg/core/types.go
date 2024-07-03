@@ -16,15 +16,19 @@
 
 package core
 
-import v1 "k8s.io/api/core/v1"
-
-type DuplicableObjectKind string
-
-const (
-	KindDeployment  DuplicableObjectKind = "Deployment"
-	KindStatefulSet DuplicableObjectKind = "StatefulSet"
-	KindPod         DuplicableObjectKind = "Pod"
+import (
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
+
+type Duplicator interface {
+	Duplicate(obj DuplicableObject, opts PodOverrideOptions) error
+}
+
+type Client interface {
+	ListDuplicable(namespace string) ([]DuplicableObject, error)
+}
 
 type PodOverrideOptions struct {
 	// Command overrides the default command of each container.
@@ -39,32 +43,20 @@ type PodOverrideOptions struct {
 	StartupProbe *v1.Probe
 }
 
+type DuplicatedObject struct {
+	Name       string
+	Namespace  string
+	ObjectKind schema.ObjectKind
+}
+
 type DuplicableObject struct {
 	Name      string
 	Namespace string
-	Kind      DuplicableObjectKind
 }
 
-func NewPod(name, namespace string) DuplicableObject {
+func NewDuplicable(u unstructured.Unstructured) DuplicableObject {
 	return DuplicableObject{
-		Kind:      KindPod,
-		Name:      name,
-		Namespace: namespace,
-	}
-}
-
-func NewDeployment(name, namespace string) DuplicableObject {
-	return DuplicableObject{
-		Kind:      KindDeployment,
-		Name:      name,
-		Namespace: namespace,
-	}
-}
-
-func NewStatefulSet(name, namespace string) DuplicableObject {
-	return DuplicableObject{
-		Kind:      KindStatefulSet,
-		Name:      name,
-		Namespace: namespace,
+		Name:      u.GetName(),
+		Namespace: u.GetNamespace(),
 	}
 }

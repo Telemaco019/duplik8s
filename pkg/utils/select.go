@@ -22,7 +22,7 @@ import (
 	"github.com/telemaco019/duplik8s/pkg/core"
 )
 
-func SelectItem(client core.Duplik8sClient, namespace, selectMessage string) (core.DuplicableObject, error) {
+func SelectItem(client core.Client, namespace, selectMessage string) (core.DuplicableObject, error) {
 	var selected = core.DuplicableObject{}
 	objs, err := client.ListDuplicable(namespace)
 	if err != nil {

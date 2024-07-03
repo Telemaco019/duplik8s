@@ -23,15 +23,15 @@ import (
 	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
-type duplik8sClientFactory func(opts utils.KubeOptions) (core.Duplik8sClient, error)
+type duplicatorFactory func(opts utils.KubeOptions) (core.Duplicator, error)
 
-func newDuplicateCmd(factory duplik8sClientFactory, selectMessage string) func(cmd *cobra.Command, args []string) error {
+func newDuplicateCmd(factory duplicatorFactory, client core.Client, selectMessage string) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		opts, err := NewKubeOptions(cmd, args)
 		if err != nil {
 			return err
 		}
-		client, err := factory(opts)
+		duplicator, err := factory(opts)
 		if err != nil {
 			return err
 		}
@@ -58,10 +58,13 @@ func newDuplicateCmd(factory duplik8sClientFactory, selectMessage string) func(c
 				return err
 			}
 		} else {
-			obj = core.NewPod(args[0], opts.Namespace)
+			obj = core.DuplicableObject{
+				Name:      args[0],
+				Namespace: opts.Namespace,
+			}
 		}
 
-		return client.Duplicate(obj, options)
+		return duplicator.Duplicate(obj, options)
 	}
 }
 
