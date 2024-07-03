@@ -18,15 +18,15 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/pods"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
 func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
 	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
 		if podClient == nil {
-			return pods.NewClient(opts)
+			return clients.NewPodClient(opts)
 		}
 		return podClient, nil
 	}

@@ -24,7 +24,7 @@ import (
 
 func SelectItem(client core.Duplik8sClient, namespace, selectMessage string) (core.DuplicableObject, error) {
 	var selected = core.DuplicableObject{}
-	objs, err := client.List(namespace)
+	objs, err := client.ListDuplicable(namespace)
 	if err != nil {
 		return selected, err
 	}

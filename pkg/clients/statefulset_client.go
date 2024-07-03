@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package statefulsets
+package clients
 
 import (
 	"context"
 	"fmt"
 	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/pods"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,7 +31,7 @@ type StatefulSetClient struct {
 	ctx       context.Context
 }
 
-func NewClient(opts utils.KubeOptions) (*StatefulSetClient, error) {
+func NewStatefulSetClient(opts utils.KubeOptions) (*StatefulSetClient, error) {
 	clientset, err := utils.NewClientset(opts.Kubeconfig, opts.Kubecontext)
 	if err != nil {
 		return nil, err
@@ -43,8 +42,8 @@ func NewClient(opts utils.KubeOptions) (*StatefulSetClient, error) {
 	}, nil
 }
 
-func (c *StatefulSetClient) List(namespace string) ([]core.DuplicableObject, error) {
-	statefulSets, err := c.clientset.AppsV1().StatefulSets(namespace).List(c.ctx, metav1.ListOptions{})
+func (c *StatefulSetClient) ListDuplicable(namespace string) ([]core.DuplicableObject, error) {
+	statefulSets, err := c.clientset.AppsV1().StatefulSets(namespace).List(c.ctx, core.NewDuplicableListOptions())
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +84,7 @@ func (c *StatefulSetClient) Duplicate(obj core.DuplicableObject, opts core.PodOv
 	}
 
 	// override the spec of the statefulset's pod
-	configurator := pods.NewConfigurator(c.clientset, opts)
+	configurator := NewConfigurator(c.clientset, opts)
 	err = configurator.OverrideSpec(c.ctx, obj.Namespace, &newStatefulSet.Spec.Template.Spec)
 	if err != nil {
 		return err

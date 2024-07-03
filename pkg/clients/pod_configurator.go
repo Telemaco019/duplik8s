@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pods
+package clients
 
 import (
 	"context"

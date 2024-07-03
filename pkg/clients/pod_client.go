@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pods
+package clients
 
 import (
 	"context"
@@ -31,7 +31,7 @@ type PodClient struct {
 	ctx       context.Context
 }
 
-func NewClient(opts utils.KubeOptions) (*PodClient, error) {
+func NewPodClient(opts utils.KubeOptions) (*PodClient, error) {
 	clientset, err := utils.NewClientset(opts.Kubeconfig, opts.Kubecontext)
 	if err != nil {
 		return nil, err
@@ -42,8 +42,8 @@ func NewClient(opts utils.KubeOptions) (*PodClient, error) {
 	}, nil
 }
 
-func (c *PodClient) List(namespace string) ([]core.DuplicableObject, error) {
-	pods, err := c.clientset.CoreV1().Pods(namespace).List(c.ctx, metav1.ListOptions{})
+func (c *PodClient) ListDuplicable(namespace string) ([]core.DuplicableObject, error) {
+	pods, err := c.clientset.CoreV1().Pods(namespace).List(c.ctx, core.NewDuplicableListOptions())
 	if err != nil {
 		return nil, err
 	}

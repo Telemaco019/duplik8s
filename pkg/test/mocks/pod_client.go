@@ -51,7 +51,7 @@ func NewPodClient(
 	}
 }
 
-func (c *PodClient) List(_ string) ([]core.DuplicableObject, error) {
+func (c *PodClient) ListDuplicable(_ string) ([]core.DuplicableObject, error) {
 	return c.ListPodsResult.Objs, c.ListPodsResult.Err
 }
 

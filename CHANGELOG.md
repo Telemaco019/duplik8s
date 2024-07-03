@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1
+
+### Fixes
+
+* In interactive selection, don't list resources that have already been duplicated.
+
 ## v0.2.0
 
 ### New features

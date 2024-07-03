@@ -17,6 +17,6 @@
 package core
 
 type Duplik8sClient interface {
-	List(namespace string) ([]DuplicableObject, error)
+	ListDuplicable(namespace string) ([]DuplicableObject, error)
 	Duplicate(obj DuplicableObject, opts PodOverrideOptions) error
 }
