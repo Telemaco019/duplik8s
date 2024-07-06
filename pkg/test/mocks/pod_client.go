@@ -28,7 +28,10 @@ type ListPodsResult struct {
 func NewListPodResults(pods []string, namespace string, err error) ListPodsResult {
 	var objs = make([]core.DuplicableObject, 0)
 	for _, pod := range pods {
-		objs = append(objs, core.NewPod(pod, namespace))
+		objs = append(objs, core.DuplicableObject{
+			Name:      pod,
+			Namespace: namespace,
+		})
 	}
 	return ListPodsResult{
 		Objs: objs,

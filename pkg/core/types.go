@@ -17,6 +17,7 @@
 package core
 
 import (
+	"context"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -27,7 +28,7 @@ type Duplicator interface {
 }
 
 type Client interface {
-	ListDuplicable(namespace string) ([]DuplicableObject, error)
+	ListDuplicable(ctx context.Context, resource schema.GroupVersionResource, namespace string) ([]DuplicableObject, error)
 }
 
 type PodOverrideOptions struct {

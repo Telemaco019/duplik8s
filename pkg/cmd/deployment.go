@@ -21,6 +21,7 @@ import (
 	"github.com/telemaco019/duplik8s/pkg/core"
 	"github.com/telemaco019/duplik8s/pkg/duplicators"
 	"github.com/telemaco019/duplik8s/pkg/utils"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func NewDeployCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
@@ -35,7 +36,11 @@ func NewDeployCmd(duplicator core.Duplicator, client core.Client) *cobra.Command
 		Short: "Duplicate a Deployment.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			run := newDuplicateCmd(factory, client, "Select a Deployment")
+			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
+				Group:    "apps",
+				Version:  "v1",
+				Resource: "deployments",
+			})
 			return run(cmd, args)
 		},
 	}
