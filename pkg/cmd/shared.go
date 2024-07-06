@@ -93,10 +93,6 @@ func newDuplicateCmd(newDuplicator duplicatorFactory, client core.Client, gvr sc
 		if err != nil {
 			return err
 		}
-		obj = core.DuplicableObject{
-			Name:      args[0],
-			Namespace: opts.Namespace,
-		}
 		return duplicator.Duplicate(obj, options)
 	}
 }
