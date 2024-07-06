@@ -25,8 +25,8 @@ import (
 )
 
 func NewRootCmd(
-	podClient core.Duplik8sClient,
-	deployClient core.Duplik8sClient,
+	duplicator core.Duplicator,
+	client core.Client,
 ) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use: "kubectl-duplicate",
@@ -51,9 +51,9 @@ func NewRootCmd(
 	configFlags.AddFlags(rootCmd.PersistentFlags())
 
 	// add subcommands
-	rootCmd.AddCommand(NewPodCmd(podClient))
-	rootCmd.AddCommand(NewDeployCmd(deployClient))
-	rootCmd.AddCommand(NewStatefulSetCmd(deployClient))
+	rootCmd.AddCommand(NewPodCmd(duplicator, client))
+	rootCmd.AddCommand(NewDeployCmd(duplicator, client))
+	rootCmd.AddCommand(NewStatefulSetCmd(duplicator, client))
 
 	return rootCmd
 }

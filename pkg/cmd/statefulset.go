@@ -18,24 +18,29 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/pkg/duplicators"
 	"github.com/telemaco019/duplik8s/pkg/utils"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-func NewStatefulSetCmd(client core.Duplik8sClient) *cobra.Command {
-	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
-		if client == nil {
-			return clients.NewStatefulSetClient(opts)
+func NewStatefulSetCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
+	factory := func(opts utils.KubeOptions) (core.Duplicator, error) {
+		if duplicator == nil {
+			return duplicators.NewStatefulSetClient(opts)
 		}
-		return client, nil
+		return duplicator, nil
 	}
 	deployCmd := &cobra.Command{
 		Use:   "statefulset",
 		Short: "Duplicate a StatefulSet.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			run := newDuplicateCmd(factory, "Select a StatefulSet")
+			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
+				Group:    "apps",
+				Version:  "v1",
+				Resource: "statefulsets",
+			})
 			return run(cmd, args)
 		},
 	}

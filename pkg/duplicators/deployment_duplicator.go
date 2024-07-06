@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package clients
+package duplicators
 
 import (
 	"context"
 	"fmt"
+	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 	appsv1 "k8s.io/api/apps/v1"
@@ -40,18 +41,6 @@ func NewDeploymentClient(opts utils.KubeOptions) (*DeploymentClient, error) {
 		clientset: clientset,
 		ctx:       context.Background(),
 	}, nil
-}
-
-func (c *DeploymentClient) ListDuplicable(namespace string) ([]core.DuplicableObject, error) {
-	deployments, err := c.clientset.AppsV1().Deployments(namespace).List(c.ctx, core.NewDuplicableListOptions())
-	if err != nil {
-		return nil, err
-	}
-	var objs []core.DuplicableObject
-	for _, d := range deployments.Items {
-		objs = append(objs, core.NewDeployment(d.Name, d.Namespace))
-	}
-	return objs, nil
 }
 
 func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
@@ -84,7 +73,7 @@ func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.PodOve
 	}
 
 	// override the spec of the deployment's pod
-	configurator := NewConfigurator(c.clientset, opts)
+	configurator := clients.NewConfigurator(c.clientset, opts)
 	err = configurator.OverrideSpec(c.ctx, obj.Namespace, &newDeploy.Spec.Template.Spec)
 	if err != nil {
 		return err

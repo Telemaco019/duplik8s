@@ -17,23 +17,35 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
 	"github.com/telemaco019/duplik8s/pkg/core"
 	"github.com/telemaco019/duplik8s/pkg/utils"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type duplik8sClientFactory func(opts utils.KubeOptions) (core.Duplik8sClient, error)
+type duplicatorFactory func(opts utils.KubeOptions) (core.Duplicator, error)
 
-func newDuplicateCmd(factory duplik8sClientFactory, selectMessage string) func(cmd *cobra.Command, args []string) error {
+func newDuplicateCmd(newDuplicator duplicatorFactory, client core.Client, gvr schema.GroupVersionResource) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		opts, err := NewKubeOptions(cmd, args)
 		if err != nil {
 			return err
 		}
-		client, err := factory(opts)
+		duplicator, err := newDuplicator(opts)
 		if err != nil {
 			return err
+		}
+		if client == nil {
+			client, err = clients.NewDuplik8sClient(opts)
+			if err != nil {
+				return err
+			}
 		}
 		cmdOverride, err := cmd.Flags().GetStringSlice(flags.COMMAND_OVERRIDE)
 		if err != nil {
@@ -51,17 +63,37 @@ func newDuplicateCmd(factory duplik8sClientFactory, selectMessage string) func(c
 			Args:    argsOverride,
 		}
 
+		// If available, duplicate the resource provided as argument
 		var obj core.DuplicableObject
-		if len(args) == 0 {
-			obj, err = utils.SelectItem(client, opts.Namespace, selectMessage)
-			if err != nil {
-				return err
+		if len(args) > 0 {
+			obj = core.DuplicableObject{
+				Name:      args[0],
+				Namespace: opts.Namespace,
 			}
-		} else {
-			obj = core.NewPod(args[0], opts.Namespace)
+			return duplicator.Duplicate(obj, options)
 		}
 
-		return client.Duplicate(obj, options)
+		// Otherwise, list available resources
+		objs, err := client.ListDuplicable(
+			context.Background(),
+			gvr,
+			opts.Namespace,
+		)
+		if err != nil {
+			return err
+		}
+		if len(objs) == 0 {
+			return fmt.Errorf("no %s available in namespace %q", gvr.Resource, opts.Namespace)
+		}
+		caser := cases.Title(language.English)
+		obj, err = utils.SelectItem(
+			objs,
+			fmt.Sprintf("%s [%s]", caser.String(gvr.Resource), opts.Namespace),
+		)
+		if err != nil {
+			return err
+		}
+		return duplicator.Duplicate(obj, options)
 	}
 }
 

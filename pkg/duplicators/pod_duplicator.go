@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package clients
+package duplicators
 
 import (
 	"context"
 	"fmt"
+	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 	v1 "k8s.io/api/core/v1"
@@ -40,18 +41,6 @@ func NewPodClient(opts utils.KubeOptions) (*PodClient, error) {
 		clientset: clientset,
 		ctx:       context.Background(),
 	}, nil
-}
-
-func (c *PodClient) ListDuplicable(namespace string) ([]core.DuplicableObject, error) {
-	pods, err := c.clientset.CoreV1().Pods(namespace).List(c.ctx, core.NewDuplicableListOptions())
-	if err != nil {
-		return nil, err
-	}
-	var objs []core.DuplicableObject
-	for _, pod := range pods.Items {
-		objs = append(objs, core.NewPod(pod.Name, pod.Namespace))
-	}
-	return objs, nil
 }
 
 func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
@@ -84,7 +73,7 @@ func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOp
 	}
 
 	// override the pod spec
-	configurator := NewConfigurator(c.clientset, opts)
+	configurator := clients.NewConfigurator(c.clientset, opts)
 	err = configurator.OverrideSpec(c.ctx, obj.Namespace, &newPod.Spec)
 	if err != nil {
 		return err

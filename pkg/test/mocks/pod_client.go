@@ -17,7 +17,9 @@
 package mocks
 
 import (
+	"context"
 	"github.com/telemaco019/duplik8s/pkg/core"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type ListPodsResult struct {
@@ -28,7 +30,10 @@ type ListPodsResult struct {
 func NewListPodResults(pods []string, namespace string, err error) ListPodsResult {
 	var objs = make([]core.DuplicableObject, 0)
 	for _, pod := range pods {
-		objs = append(objs, core.NewPod(pod, namespace))
+		objs = append(objs, core.DuplicableObject{
+			Name:      pod,
+			Namespace: namespace,
+		})
 	}
 	return ListPodsResult{
 		Objs: objs,
@@ -51,7 +56,7 @@ func NewPodClient(
 	}
 }
 
-func (c *PodClient) ListDuplicable(_ string) ([]core.DuplicableObject, error) {
+func (c *PodClient) ListDuplicable(ctx context.Context, resource schema.GroupVersionResource, namespace string) ([]core.DuplicableObject, error) {
 	return c.ListPodsResult.Objs, c.ListPodsResult.Err
 }
 

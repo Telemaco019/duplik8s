@@ -17,26 +17,18 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/charmbracelet/huh"
 	"github.com/telemaco019/duplik8s/pkg/core"
 )
 
-func SelectItem(client core.Duplik8sClient, namespace, selectMessage string) (core.DuplicableObject, error) {
-	var selected = core.DuplicableObject{}
-	objs, err := client.ListDuplicable(namespace)
-	if err != nil {
-		return selected, err
-	}
-	if len(objs) == 0 {
-		return selected, fmt.Errorf("no Pods found in namespace %q", namespace)
-	}
-	options := make([]huh.Option[core.DuplicableObject], len(objs))
-	for i, o := range objs {
+func SelectItem(items []core.DuplicableObject, selectMessage string) (core.DuplicableObject, error) {
+	var selected core.DuplicableObject
+	options := make([]huh.Option[core.DuplicableObject], len(items))
+	for i, o := range items {
 		options[i] = huh.NewOption(o.Name, o)
 	}
-	err = huh.NewSelect[core.DuplicableObject]().
-		Title(fmt.Sprintf("%s [%s]", selectMessage, namespace)).
+	err := huh.NewSelect[core.DuplicableObject]().
+		Title(selectMessage).
 		Options(options...).
 		Value(&selected).
 		Run()

@@ -17,6 +17,7 @@
 package utils
 
 import (
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -36,6 +37,26 @@ func NewClientset(kubeconfig, context string) (*kubernetes.Clientset, error) {
 	}
 
 	clientSet, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return clientSet, nil
+}
+
+func NewDynamicClient(kubeconfig, context string) (*dynamic.DynamicClient, error) {
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
+		&clientcmd.ConfigOverrides{
+			ClusterInfo:    clientcmdapi.Cluster{Server: ""},
+			CurrentContext: context,
+		},
+	).ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	clientSet, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}

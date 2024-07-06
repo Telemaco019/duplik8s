@@ -18,24 +18,29 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/pkg/duplicators"
 	"github.com/telemaco019/duplik8s/pkg/utils"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-func NewPodCmd(podClient core.Duplik8sClient) *cobra.Command {
-	factory := func(opts utils.KubeOptions) (core.Duplik8sClient, error) {
-		if podClient == nil {
-			return clients.NewPodClient(opts)
+func NewPodCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
+	factory := func(opts utils.KubeOptions) (core.Duplicator, error) {
+		if duplicator == nil {
+			return duplicators.NewPodClient(opts)
 		}
-		return podClient, nil
+		return duplicator, nil
 	}
 	podCmd := &cobra.Command{
 		Use:   "pod",
 		Short: "Duplicate a Pod.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			run := newDuplicateCmd(factory, "Select a Pod")
+			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
+				Group:    "",
+				Version:  "v1",
+				Resource: "pods",
+			})
 			return run(cmd, args)
 		},
 	}
