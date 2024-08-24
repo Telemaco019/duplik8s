@@ -57,7 +57,7 @@ func listDuplicatedResources(client core.Client, namespace string) error {
 			utils.FormatAge(obj.CreationTimestamp),
 		)
 	}
-	fmt.Printf(t.Render())
+	fmt.Printf(t.Render() + "\n")
 	return nil
 
 }
