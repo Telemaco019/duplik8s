@@ -98,7 +98,7 @@ func (c Duplik8sClient) ListDuplicated(
 			}
 			// TODO: remove this when duplik8s will support all resources
 			// Skip resources that are not Pods, Deployments, or StatefulSets
-			if apiResource.Name != "pods" && apiResource.Name != "deployments" && apiResource.Name != "statefulsets" {
+			if apiResource.Kind != "Pod" && apiResource.Kind != "Deployment" && apiResource.Kind != "StatefulSet" {
 				continue
 			}
 
@@ -118,9 +118,10 @@ func (c Duplik8sClient) ListDuplicated(
 
 			for _, u := range unstructuredList.Items {
 				resources = append(resources, core.DuplicatedObject{
-					Name:       u.GetName(),
-					Namespace:  u.GetNamespace(),
-					ObjectKind: u.GetObjectKind(),
+					Name:              u.GetName(),
+					Namespace:         u.GetNamespace(),
+					ObjectKind:        u.GetObjectKind(),
+					CreationTimestamp: u.GetCreationTimestamp(),
 				})
 			}
 		}

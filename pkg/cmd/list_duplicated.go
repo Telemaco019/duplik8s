@@ -19,9 +19,12 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
 	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/pkg/utils"
 )
 
 func listDuplicatedResources(client core.Client, namespace string) error {
@@ -33,9 +36,28 @@ func listDuplicatedResources(client core.Client, namespace string) error {
 		fmt.Println(fmt.Sprintf("No duplicated resources found in namespace %q", namespace))
 		return nil
 	}
+	headerStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#56bc8b")).Bold(true).Padding(0, 1)
+	defaultStyle := lipgloss.NewStyle().Padding(0, 1)
+	t := table.New().
+		Border(lipgloss.RoundedBorder()).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			switch {
+			case row == 0:
+				return headerStyle
+			default:
+				return defaultStyle
+			}
+		}).
+		Headers("Namespace", "Kind", "Name", "Age")
 	for _, obj := range duplicatedObjs {
-		fmt.Println(obj)
+		t.Row(
+			obj.Namespace,
+			obj.ObjectKind.GroupVersionKind().Kind,
+			obj.Name,
+			utils.FormatAge(obj.CreationTimestamp),
+		)
 	}
+	fmt.Println(t.Render())
 	return nil
 
 }
