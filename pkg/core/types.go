@@ -28,7 +28,12 @@ type Duplicator interface {
 }
 
 type Client interface {
-	ListDuplicable(ctx context.Context, resource schema.GroupVersionResource, namespace string) ([]DuplicableObject, error)
+	ListDuplicable(
+		ctx context.Context,
+		resource schema.GroupVersionResource,
+		namespace string,
+	) ([]DuplicableObject, error)
+	ListDuplicated(ctx context.Context, namespace string) ([]DuplicatedObject, error)
 }
 
 type PodOverrideOptions struct {

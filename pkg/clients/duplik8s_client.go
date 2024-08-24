@@ -22,20 +22,31 @@ import (
 	"github.com/telemaco019/duplik8s/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"slices"
+	"strings"
 )
 
 type Duplik8sClient struct {
-	client dynamic.Interface
+	dynamic   dynamic.Interface
+	discovery discovery.DiscoveryInterface
 }
 
 func NewDuplik8sClient(opts utils.KubeOptions) (*Duplik8sClient, error) {
-	client, err := utils.NewDynamicClient(opts.Kubeconfig, opts.Kubecontext)
+	dynamic, err := utils.NewDynamicClient(opts.Kubeconfig, opts.Kubecontext)
 	if err != nil {
 		return nil, err
 	}
+
+	discovery, err := utils.NewDiscoveryClient(opts.Kubeconfig, opts.Kubecontext)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Duplik8sClient{
-		client: client,
+		dynamic:   dynamic,
+		discovery: discovery,
 	}, nil
 }
 
@@ -44,7 +55,9 @@ func (c Duplik8sClient) ListDuplicable(
 	resource schema.GroupVersionResource,
 	namespace string,
 ) ([]core.DuplicableObject, error) {
-	unstructuredList, err := c.client.Resource(resource).Namespace(namespace).List(ctx, metav1.ListOptions{})
+	unstructuredList, err := c.dynamic.Resource(resource).
+		Namespace(namespace).
+		List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -55,6 +68,62 @@ func (c Duplik8sClient) ListDuplicable(
 	return objs, nil
 }
 
-func (c Duplik8sClient) ListDuplicated(ctx context.Context) ([]core.DuplicableObject, error) {
-	return nil, nil
+func (c Duplik8sClient) ListDuplicated(
+	ctx context.Context,
+	namespace string,
+) ([]core.DuplicatedObject, error) {
+	_, apiResourceLists, err := c.discovery.ServerGroupsAndResources()
+	if err != nil {
+		return nil, err
+	}
+
+	resources := make([]core.DuplicatedObject, 0)
+	for _, apiResourceList := range apiResourceLists {
+		gv, err := schema.ParseGroupVersion(apiResourceList.GroupVersion)
+		if err != nil {
+			return nil, err
+		}
+		for _, apiResource := range apiResourceList.APIResources {
+			// Skip non-namespaced resources
+			if apiResource.Namespaced == false {
+				continue
+			}
+			// Skip subresources
+			if strings.Contains(apiResource.Name, "/") {
+				continue
+			}
+			// Skip resources that do not support the 'list' verb
+			if !slices.Contains(apiResource.Verbs, "list") {
+				continue
+			}
+			// TODO: remove this when duplik8s will support all resources
+			// Skip resources that are not Pods, Deployments, or StatefulSets
+			if apiResource.Name != "pods" && apiResource.Name != "deployments" && apiResource.Name != "statefulsets" {
+				continue
+			}
+
+			gvr := schema.GroupVersionResource{
+				Group:    gv.Group,
+				Version:  gv.Version,
+				Resource: apiResource.Name,
+			}
+			unstructuredList, err := c.dynamic.Resource(gvr).
+				Namespace(namespace).
+				List(ctx, metav1.ListOptions{
+					LabelSelector: core.LABEL_DUPLICATED + "=true",
+				})
+			if err != nil {
+				return nil, err
+			}
+
+			for _, u := range unstructuredList.Items {
+				resources = append(resources, core.DuplicatedObject{
+					Name:       u.GetName(),
+					Namespace:  u.GetNamespace(),
+					ObjectKind: u.GetObjectKind(),
+				})
+			}
+		}
+	}
+	return resources, nil
 }

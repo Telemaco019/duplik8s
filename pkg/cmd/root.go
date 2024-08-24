@@ -52,6 +52,7 @@ func NewRootCmd(
 
 	// add subcommands
 	rootCmd.AddCommand(NewPodCmd(duplicator, client))
+	rootCmd.AddCommand(NewListDuplicatedCmd(client))
 	rootCmd.AddCommand(NewDeployCmd(duplicator, client))
 	rootCmd.AddCommand(NewStatefulSetCmd(duplicator, client))
 
