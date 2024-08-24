@@ -76,3 +76,7 @@ func (c *PodClient) ListDuplicated(
 ) ([]core.DuplicatedObject, error) {
 	return c.ListDuplicatedResult, nil
 }
+
+func (c *PodClient) Delete(ctx context.Context, obj core.DuplicatedObject) error {
+	return nil
+}

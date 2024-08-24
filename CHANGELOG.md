@@ -4,11 +4,22 @@
 
 ### New features
 
-* Add command `list` for showing duplicated resources.
+* Add command `list` for showing duplicated resources. Example:
+
+```shell
+kubectl duplicate list -n  my-namespace
+```
+
+* Add command `cleanup` for deleting duplicated resources. Example:
+
+```shell
+kubectl duplicate cleanup -n  my-namespace
+```
 
 ### Chores
 
-* Switch to [Dynamic Client](https://github.com/kubernetes/client-go/blob/master/examples/dynamic-create-update-delete-deployment/README.md),
+* Switch
+  to [Dynamic Client](https://github.com/kubernetes/client-go/blob/master/examples/dynamic-create-update-delete-deployment/README.md),
   opening the door for duplicating any resource type.
 
 ## v0.2.1

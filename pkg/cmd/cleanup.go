@@ -19,29 +19,47 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"github.com/telemaco019/duplik8s/pkg/clients"
 	"github.com/telemaco019/duplik8s/pkg/core"
 )
 
-func listDuplicatedResources(client core.Client, namespace string) error {
-	duplicatedObjs, err := client.ListDuplicated(context.Background(), namespace)
+func cleanup(client core.Client, namespace string) error {
+	duplicated, err := client.ListDuplicated(context.Background(), namespace)
+	if err != nil {
+		return err
+	}
+	if len(duplicated) == 0 {
+		fmt.Printf("No duplicated resources found in namespace %q\n", namespace)
+		return nil
+	}
+
+	renderDuplicatedObjects(duplicated)
+
+	var shouldDelete bool
+	err = huh.NewConfirm().Title("Do you want to delete the following resources?").Value(&shouldDelete).Run()
 	if err != nil {
 		return err
 	}
 
-	if len(duplicatedObjs) == 0 {
-		fmt.Printf("No duplicated resources found in namespace %q\n", namespace)
-		return nil
+	if shouldDelete {
+		for _, obj := range duplicated {
+			err = client.Delete(context.Background(), obj)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("deleted %s %s/%s\n", obj.ObjectKind.GroupVersionKind().Kind, obj.Namespace, obj.Name)
+		}
 	}
-	renderDuplicatedObjects(duplicatedObjs)
+
 	return nil
 }
 
-func NewListDuplicatedCmd(client core.Client) *cobra.Command {
+func NewCleanupCmd(client core.Client) *cobra.Command {
 	podCmd := &cobra.Command{
-		Use:   "list",
-		Short: "Show duplicated resources.",
+		Use:   "cleanup",
+		Short: "Cleanup duplicated resources.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -55,7 +73,7 @@ func NewListDuplicatedCmd(client core.Client) *cobra.Command {
 					return err
 				}
 			}
-			return listDuplicatedResources(client, opts.Namespace)
+			return cleanup(client, opts.Namespace)
 		},
 	}
 	addOverrideFlags(podCmd)

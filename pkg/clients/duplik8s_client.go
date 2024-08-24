@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/restmapper"
 	"slices"
 	"strings"
 )
@@ -66,6 +67,29 @@ func (c Duplik8sClient) ListDuplicable(
 		objs = append(objs, core.NewDuplicable(u))
 	}
 	return objs, nil
+}
+
+func (c Duplik8sClient) Delete(
+	ctx context.Context,
+	obj core.DuplicatedObject,
+) error {
+	// Get a RESTMapper
+	resources, err := restmapper.GetAPIGroupResources(c.discovery)
+	if err != nil {
+		panic(err.Error())
+	}
+	restMapper := restmapper.NewDiscoveryRESTMapper(resources)
+
+	// Convert GroupVersionKind to GroupVersionResource
+	mapping, err := restMapper.RESTMapping(
+		obj.ObjectKind.GroupVersionKind().GroupKind(),
+		obj.ObjectKind.GroupVersionKind().Version,
+	)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return c.dynamic.Resource(mapping.Resource).Namespace(obj.Namespace).Delete(ctx, obj.Name, metav1.DeleteOptions{})
 }
 
 func (c Duplik8sClient) ListDuplicated(

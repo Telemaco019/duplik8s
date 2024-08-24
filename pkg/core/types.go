@@ -35,6 +35,7 @@ type Client interface {
 		namespace string,
 	) ([]DuplicableObject, error)
 	ListDuplicated(ctx context.Context, namespace string) ([]DuplicatedObject, error)
+	Delete(ctx context.Context, obj DuplicatedObject) error
 }
 
 type PodOverrideOptions struct {
