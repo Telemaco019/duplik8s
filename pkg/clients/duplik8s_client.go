@@ -85,7 +85,7 @@ func (c Duplik8sClient) ListDuplicated(
 		}
 		for _, apiResource := range apiResourceList.APIResources {
 			// Skip non-namespaced resources
-			if apiResource.Namespaced == false {
+			if !apiResource.Namespaced {
 				continue
 			}
 			// Skip subresources
