@@ -33,7 +33,7 @@ func listDuplicatedResources(client core.Client, namespace string) error {
 		return err
 	}
 	if len(duplicatedObjs) == 0 {
-		fmt.Println(fmt.Sprintf("No duplicated resources found in namespace %q", namespace))
+		fmt.Printf("No duplicated resources found in namespace %q\n", namespace)
 		return nil
 	}
 	headerStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#56bc8b")).Bold(true).Padding(0, 1)
@@ -57,7 +57,7 @@ func listDuplicatedResources(client core.Client, namespace string) error {
 			utils.FormatAge(obj.CreationTimestamp),
 		)
 	}
-	fmt.Printf(t.Render() + "\n")
+	fmt.Print(t.Render() + "\n")
 	return nil
 
 }
