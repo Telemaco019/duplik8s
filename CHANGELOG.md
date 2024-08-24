@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.0
+
+### New features
+
+* Add command `list` for showing duplicated resources.
+
+### Chores
+
+* Switch to [Dynamic Client](https://github.com/kubernetes/client-go/blob/master/examples/dynamic-create-update-delete-deployment/README.md),
+  opening the door for duplicating any resource type.
+
 ## v0.2.1
 
 ### Fixes

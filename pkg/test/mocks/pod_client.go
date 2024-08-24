@@ -42,8 +42,9 @@ func NewListPodResults(pods []string, namespace string, err error) ListPodsResul
 }
 
 type PodClient struct {
-	ListPodsResult     ListPodsResult
-	DuplicatePodResult error
+	ListPodsResult       ListPodsResult
+	DuplicatePodResult   error
+	ListDuplicatedResult []core.DuplicatedObject
 }
 
 func NewPodClient(
@@ -51,15 +52,27 @@ func NewPodClient(
 	DuplicatePodResult error,
 ) *PodClient {
 	return &PodClient{
-		ListPodsResult:     ListPodsResult,
-		DuplicatePodResult: DuplicatePodResult,
+		ListPodsResult:       ListPodsResult,
+		DuplicatePodResult:   DuplicatePodResult,
+		ListDuplicatedResult: make([]core.DuplicatedObject, 0),
 	}
 }
 
-func (c *PodClient) ListDuplicable(ctx context.Context, resource schema.GroupVersionResource, namespace string) ([]core.DuplicableObject, error) {
+func (c *PodClient) ListDuplicable(
+	ctx context.Context,
+	resource schema.GroupVersionResource,
+	namespace string,
+) ([]core.DuplicableObject, error) {
 	return c.ListPodsResult.Objs, c.ListPodsResult.Err
 }
 
 func (c *PodClient) Duplicate(_ core.DuplicableObject, __ core.PodOverrideOptions) error {
 	return c.DuplicatePodResult
+}
+
+func (c *PodClient) ListDuplicated(
+	ctx context.Context,
+	namespace string,
+) ([]core.DuplicatedObject, error) {
+	return c.ListDuplicatedResult, nil
 }

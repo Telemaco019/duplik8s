@@ -19,6 +19,7 @@ package core
 import (
 	"context"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -28,7 +29,12 @@ type Duplicator interface {
 }
 
 type Client interface {
-	ListDuplicable(ctx context.Context, resource schema.GroupVersionResource, namespace string) ([]DuplicableObject, error)
+	ListDuplicable(
+		ctx context.Context,
+		resource schema.GroupVersionResource,
+		namespace string,
+	) ([]DuplicableObject, error)
+	ListDuplicated(ctx context.Context, namespace string) ([]DuplicatedObject, error)
 }
 
 type PodOverrideOptions struct {
@@ -45,9 +51,10 @@ type PodOverrideOptions struct {
 }
 
 type DuplicatedObject struct {
-	Name       string
-	Namespace  string
-	ObjectKind schema.ObjectKind
+	Name              string
+	Namespace         string
+	ObjectKind        schema.ObjectKind
+	CreationTimestamp metav1.Time
 }
 
 type DuplicableObject struct {
