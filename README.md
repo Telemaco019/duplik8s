@@ -18,11 +18,11 @@ Think of **duplik8s** as
 [kubectl debug --copy-to](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#copying-a-pod-while-changing-its-command)
 on steroids:
 
-* **Support multiple resources**: Duplicate not just Pods, but also `Deployments` and `StatefulSets`.
-* **Easy Tracking**: All duplicated resources are tagged with a duplik8s label for easy identification and cleanup.
-* **Persistent Storage Handling**: Smoothly duplicate Pods mounting persistent volumes without issues.
-* **Probes cleanup**: Disable liveness and readiness probes to keep the cloned Pod idle and avoid restarts.
-* **User-Friendly Syntax**: straightforward syntax that simplifies the selection and duplication of resources.
+- **Support multiple resources**: Duplicate not just Pods, but also `Deployments` and `StatefulSets`.
+- **Easy Tracking**: All duplicated resources are tagged with a duplik8s label for easy identification and cleanup.
+- **Persistent Storage Handling**: Smoothly duplicate Pods mounting persistent volumes without issues.
+- **Probes cleanup**: Disable liveness and readiness probes to keep the cloned Pod idle and avoid restarts.
+- **User-Friendly Syntax**: straightforward syntax that simplifies the selection and duplication of resources.
 
 ## Installation
 
@@ -95,7 +95,6 @@ plugins:
       - $NAMESPACE
       - --context
       - $CONTEXT
-
 ```
 
 On MacOS, you can find the `plugins.yml` file at `~/Library/Application Support/k9s/plugins.yaml`.
@@ -118,7 +117,7 @@ The cloned Pod will be identical to the original, but with probes disabled and c
 ### Interactively select a Pod to duplicate
 
 ```sh
-$ kubectl duplicate pod  
+$ kubectl duplicate pod
 ```
 
 The command will prompt you to select a Pod from the list of available Pods in the specified namespace.
@@ -136,6 +135,22 @@ $ kubectl duplicate pod nginx-pod --command-override "/bin/sh","-c","echo Hello,
 ```
 
 With this, you can easily duplicate a Pod and run any command you want in the new instance.
+
+### List all duplicated resources
+
+The command will list all the resources duplicated by **duplik8s**.
+
+```sh
+$ kubectl duplicate list
+```
+
+### Cleanup duplicated resources
+
+The command will show you all the duplicated resources and ask you to confirm the deletion.
+
+```sh
+$ kubectl duplicate cleanup
+```
 
 ## Use cases
 
@@ -156,9 +171,8 @@ peasy! ⚡
 Even better, if you're using `duplik8s` with `k9s`, just press `Ctrl-T` to duplicate the Pod and s to open a shell
 in one of its containers. 🚀
 
---- 
+---
 
 ## License
 
 This project is licensed under the Apache License. See the [LICENSE](./LICENSE) file for details.
-
