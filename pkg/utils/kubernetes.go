@@ -17,12 +17,16 @@
 package utils
 
 import (
+	"os"
+	"path/filepath"
+
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/client-go/util/homedir"
 )
 
 // NewClientset creates a new kubernetes clientset
@@ -68,6 +72,15 @@ func NewDynamicClient(kubeconfig, context string) (*dynamic.DynamicClient, error
 	}
 
 	return clientSet, nil
+}
+
+func GetKubeconfigPath() string {
+	kubeconfigPath := os.Getenv("KUBECONFIG")
+	if kubeconfigPath != "" {
+		return kubeconfigPath
+	}
+	home := homedir.HomeDir()
+	return filepath.Join(home, ".kube", "config")
 }
 
 func NewDiscoveryClient(kubeconfig, context string) (*discovery.DiscoveryClient, error) {

@@ -19,9 +19,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/pkg/utils"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/util/homedir"
-	"path/filepath"
 )
 
 func NewRootCmd(
@@ -41,10 +40,7 @@ func NewRootCmd(
 
 	// Setup kubeconfig flags
 	defaultNamespace := "default"
-	defaultKubeconfig := ""
-	if home := homedir.HomeDir(); home != "" {
-		defaultKubeconfig = filepath.Join(home, ".kube", "config")
-	}
+	defaultKubeconfig := utils.GetKubeconfigPath()
 	configFlags := genericclioptions.NewConfigFlags(true)
 	configFlags.KubeConfig = &defaultKubeconfig
 	configFlags.Namespace = &defaultNamespace
