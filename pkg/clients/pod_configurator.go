@@ -29,14 +29,21 @@ type PodConfigurator struct {
 	options   core.PodOverrideOptions
 }
 
-func NewConfigurator(clientset *kubernetes.Clientset, options core.PodOverrideOptions) PodConfigurator {
+func NewConfigurator(
+	clientset *kubernetes.Clientset,
+	options core.PodOverrideOptions,
+) PodConfigurator {
 	return PodConfigurator{
 		clientset: clientset,
 		options:   options,
 	}
 }
 
-func (c PodConfigurator) OverrideSpec(ctx context.Context, namespace string, podSpec *v1.PodSpec) error {
+func (c PodConfigurator) OverrideSpec(
+	ctx context.Context,
+	namespace string,
+	podSpec *v1.PodSpec,
+) error {
 	// Override command
 	if c.options.Command != nil {
 		for i := range podSpec.Containers {
@@ -60,10 +67,17 @@ func (c PodConfigurator) OverrideSpec(ctx context.Context, namespace string, pod
 		podSpec.NodeName = ""
 	}
 
+	// Remove init containers
+	podSpec.InitContainers = nil
+
 	return nil
 }
 
-func (c PodConfigurator) hasMountOncePvc(ctx context.Context, namespace string, podSpec v1.PodSpec) (bool, error) {
+func (c PodConfigurator) hasMountOncePvc(
+	ctx context.Context,
+	namespace string,
+	podSpec v1.PodSpec,
+) (bool, error) {
 	for _, volume := range podSpec.Volumes {
 		if volume.PersistentVolumeClaim != nil {
 			pvc, err := c.clientset.
