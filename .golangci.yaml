@@ -16,4 +16,3 @@ linters:
     - staticcheck
     - typecheck
     - unused
-    - exportloopref

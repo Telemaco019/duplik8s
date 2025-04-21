@@ -32,9 +32,6 @@ jobs:
       - name: Check license header
         uses: apache/skywalking-eyes@v0.4.0
 
-      - name: Lint
-        uses: golangci/golangci-lint-action@v6
-
       - name: Test
         shell: bash
-        run: make test
+        run: make check

@@ -57,7 +57,7 @@ test: ## Run tests.
 	go test -v ./...
 
 .PHONY: check
-check: fmt vet test license-check ## Check the code
+check: fmt vet lint test license-check ## Check the code
 
 
 ##@ Build
@@ -80,7 +80,7 @@ LICENSE_EYE ?= $(LOCALBIN)/license-eye
 VHS ?= $(LOCALBIN)/vhs
 
 ## Tool Versions
-GOLANGCI_LINT_VERSION ?= 1.50.1
+GOLANGCI_LINT_VERSION ?= 1.64.8
 GORELEASER_VERSION ?= 1.26.1
 
 .PHONY: golangci-lint ## Download golanci-lint if necessary
