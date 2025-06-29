@@ -23,5 +23,5 @@ const (
 
 	COMMAND_OVERRIDE  = "command-override"
 	ARGS_OVERRIDE     = "args-override"
-	INTERACTIVE_SHELL = "it"
+	INTERACTIVE_SHELL = "shell"
 )
