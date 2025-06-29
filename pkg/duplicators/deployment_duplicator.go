@@ -43,7 +43,7 @@ func NewDeploymentClient(opts utils.KubeOptions) (*DeploymentClient, error) {
 	}, nil
 }
 
-func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
+func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.DuplicateOpts) error {
 	fmt.Printf("duplicating deployment %s\n", obj.Name)
 
 	// fetch the Deployment
@@ -80,10 +80,24 @@ func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.PodOve
 	}
 
 	// create the new deployment
-	_, err = c.clientset.AppsV1().Deployments(obj.Namespace).Create(c.ctx, &newDeploy, metav1.CreateOptions{})
+	duplicatedDeploy, err := c.clientset.AppsV1().Deployments(obj.Namespace).Create(c.ctx, &newDeploy, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 	fmt.Printf("deployment %q duplicated in %q\n", obj.Name, newName)
+
+	if opts.StartInteractiveShell {
+		pod, err := GetOwnedPod(
+			c.ctx,
+			c.clientset,
+			newDeploy.Namespace,
+			duplicatedDeploy.Spec.Selector,
+		)
+		if err != nil {
+			return err
+		}
+		return StartInteractiveShell(c.ctx, c.clientset, pod)
+	}
+
 	return nil
 }

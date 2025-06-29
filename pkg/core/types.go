@@ -25,7 +25,7 @@ import (
 )
 
 type Duplicator interface {
-	Duplicate(obj DuplicableObject, opts PodOverrideOptions) error
+	Duplicate(obj DuplicableObject, opts DuplicateOpts) error
 }
 
 type Client interface {
@@ -38,7 +38,7 @@ type Client interface {
 	Delete(ctx context.Context, obj DuplicatedObject) error
 }
 
-type PodOverrideOptions struct {
+type DuplicateOpts struct {
 	// Command overrides the default command of each container.
 	Command []string
 	// Args overrides the default args of each container.
@@ -49,6 +49,8 @@ type PodOverrideOptions struct {
 	LivenessProbe *v1.Probe
 	// StartupProbe overrides the startup probe of each container.
 	StartupProbe *v1.Probe
+	// StartInteractiveShell indicates whether to start an interactive shell in the duplicated pod.
+	StartInteractiveShell bool
 }
 
 type DuplicatedObject struct {

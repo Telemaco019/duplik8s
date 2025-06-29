@@ -43,7 +43,7 @@ func NewStatefulSetClient(opts utils.KubeOptions) (*StatefulSetClient, error) {
 	}, nil
 }
 
-func (c *StatefulSetClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
+func (c *StatefulSetClient) Duplicate(obj core.DuplicableObject, opts core.DuplicateOpts) error {
 	fmt.Printf("duplicating statefulset %s\n", obj.Name)
 
 	// fetch the StatefulSet
@@ -80,10 +80,24 @@ func (c *StatefulSetClient) Duplicate(obj core.DuplicableObject, opts core.PodOv
 	}
 
 	// create the new statefulset
-	_, err = c.clientset.AppsV1().StatefulSets(obj.Namespace).Create(c.ctx, &newStatefulSet, metav1.CreateOptions{})
+	duplicatedStatefulSet, err := c.clientset.AppsV1().StatefulSets(obj.Namespace).Create(c.ctx, &newStatefulSet, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 	fmt.Printf("statefulset %q duplicated in %q\n", obj.Name, newName)
+
+	if opts.StartInteractiveShell {
+		pod, err := GetOwnedPod(
+			c.ctx,
+			c.clientset,
+			duplicatedStatefulSet.Namespace,
+			duplicatedStatefulSet.Spec.Selector,
+		)
+		if err != nil {
+			return err
+		}
+		return StartInteractiveShell(c.ctx, c.clientset, pod)
+	}
+
 	return nil
 }

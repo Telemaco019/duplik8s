@@ -26,12 +26,12 @@ import (
 
 type PodConfigurator struct {
 	clientset *kubernetes.Clientset
-	options   core.PodOverrideOptions
+	options   core.DuplicateOpts
 }
 
 func NewConfigurator(
 	clientset *kubernetes.Clientset,
-	options core.PodOverrideOptions,
+	options core.DuplicateOpts,
 ) PodConfigurator {
 	return PodConfigurator{
 		clientset: clientset,

@@ -57,12 +57,17 @@ func newDuplicateCmd(newDuplicator duplicatorFactory, client core.Client, gvr sc
 		if err != nil {
 			return err
 		}
+		interactiveShell, err := cmd.Flags().GetBool(flags.INTERACTIVE_SHELL)
+		if err != nil {
+			return err
+		}
 
 		// Avoid printing usage information on errors
 		cmd.SilenceUsage = true
-		options := core.PodOverrideOptions{
-			Command: cmdOverride,
-			Args:    argsOverride,
+		options := core.DuplicateOpts{
+			Command:               cmdOverride,
+			Args:                  argsOverride,
+			StartInteractiveShell: interactiveShell,
 		}
 
 		// If available, duplicate the resource provided as argument
@@ -110,6 +115,11 @@ func addOverrideFlags(cmd *cobra.Command) {
 		[]string{"-c", "trap 'exit 0' INT TERM KILL; while true; do sleep 1; done"},
 		"Override the command of each container in the Pod.",
 	)
+	cmd.Flags().Bool(
+		flags.INTERACTIVE_SHELL,
+		false,
+		"After duplicating the resource, launch an interactive shell in the duplicated Pod.",
+	)
 }
 
 func renderDuplicatedObjects(duplicatedObjs []core.DuplicatedObject) {
@@ -117,8 +127,8 @@ func renderDuplicatedObjects(duplicatedObjs []core.DuplicatedObject) {
 	defaultStyle := lipgloss.NewStyle().Padding(0, 1)
 	t := table.New().Border(lipgloss.HiddenBorder()).
 		StyleFunc(func(row, col int) lipgloss.Style {
-			switch {
-			case row == 0:
+			switch row {
+			case 0:
 				return headerStyle
 			default:
 				return defaultStyle

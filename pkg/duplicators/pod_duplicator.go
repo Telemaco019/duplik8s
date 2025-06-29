@@ -43,7 +43,7 @@ func NewPodClient(opts utils.KubeOptions) (*PodClient, error) {
 	}, nil
 }
 
-func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
+func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.DuplicateOpts) error {
 	fmt.Printf("duplicating pod %s\n", obj.Name)
 
 	// fetch the pod
@@ -85,5 +85,10 @@ func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOp
 		return err
 	}
 	fmt.Printf("pod %q duplicated in %q\n", obj.Name, newName)
+
+	if opts.StartInteractiveShell {
+		return StartInteractiveShell(c.ctx, c.clientset, newPod)
+	}
+
 	return nil
 }
