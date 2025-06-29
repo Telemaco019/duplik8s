@@ -19,71 +19,76 @@ package duplicators
 import (
 	"context"
 	"fmt"
-	"github.com/telemaco019/duplik8s/pkg/clients"
-	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/utils"
-	appsv1 "k8s.io/api/apps/v1"
+	"github.com/telemaco019/duplik8s/internal/clients"
+	"github.com/telemaco019/duplik8s/internal/core"
+	"github.com/telemaco019/duplik8s/internal/utils"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
-type StatefulSetClient struct {
+type PodClient struct {
 	clientset *kubernetes.Clientset
 	ctx       context.Context
 }
 
-func NewStatefulSetClient(opts utils.KubeOptions) (*StatefulSetClient, error) {
+func NewPodClient(opts utils.KubeOptions) (*PodClient, error) {
 	clientset, err := utils.NewClientset(opts.Kubeconfig, opts.Kubecontext)
 	if err != nil {
 		return nil, err
 	}
-	return &StatefulSetClient{
+	return &PodClient{
 		clientset: clientset,
 		ctx:       context.Background(),
 	}, nil
 }
 
-func (c *StatefulSetClient) Duplicate(obj core.DuplicableObject, opts core.PodOverrideOptions) error {
-	fmt.Printf("duplicating statefulset %s\n", obj.Name)
+func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.DuplicateOpts) error {
+	fmt.Printf("duplicating pod %s\n", obj.Name)
 
-	// fetch the StatefulSet
-	statefulSet, err := c.clientset.AppsV1().StatefulSets(obj.Namespace).Get(c.ctx, obj.Name, metav1.GetOptions{})
+	// fetch the pod
+	pod, err := c.clientset.CoreV1().Pods(obj.Namespace).Get(c.ctx, obj.Name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
-	if statefulSet.Labels[core.LABEL_DUPLICATED] == "true" {
-		return fmt.Errorf("statefulset %s is already duplicated", obj.Name)
+	if pod.Labels[core.LABEL_DUPLICATED] == "true" {
+		return fmt.Errorf("pod %s is already duplicated", obj.Name)
 	}
 
-	// create a new StatefulSet and override the spec
-	newName := fmt.Sprintf("%s-duplik8ted", statefulSet.Name)
-	newStatefulSet := appsv1.StatefulSet{
+	// create a new pod and override the spec
+	newName := fmt.Sprintf("%s-duplik8ted", pod.Name)
+	newPod := v1.Pod{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "StatefulSet",
+			Kind:       "Pod",
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      newName,
-			Namespace: statefulSet.Namespace,
+			Namespace: pod.Namespace,
 			Labels: map[string]string{
 				core.LABEL_DUPLICATED: "true",
 			},
 		},
-		Spec: statefulSet.Spec,
+		Spec: pod.Spec,
 	}
 
-	// override the spec of the statefulset's pod
+	// override the pod spec
 	configurator := clients.NewConfigurator(c.clientset, opts)
-	err = configurator.OverrideSpec(c.ctx, obj.Namespace, &newStatefulSet.Spec.Template.Spec)
+	err = configurator.OverrideSpec(c.ctx, obj.Namespace, &newPod.Spec)
 	if err != nil {
 		return err
 	}
 
-	// create the new statefulset
-	_, err = c.clientset.AppsV1().StatefulSets(obj.Namespace).Create(c.ctx, &newStatefulSet, metav1.CreateOptions{})
+	// create the new pod
+	_, err = c.clientset.CoreV1().Pods(pod.Namespace).Create(c.ctx, &newPod, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("statefulset %q duplicated in %q\n", obj.Name, newName)
+	fmt.Printf("pod %q duplicated in %q\n", obj.Name, newName)
+
+	if opts.StartInteractiveShell {
+		return StartInteractiveShell(c.ctx, c.clientset, newPod)
+	}
+
 	return nil
 }

@@ -122,6 +122,15 @@ $ kubectl duplicate pod
 
 The command will prompt you to select a Pod from the list of available Pods in the specified namespace.
 
+### Duplicate a Pod and open a shell in the cloned Pod
+
+```sh
+kubectl duplicate pod my-pod --shell
+```
+
+This command will duplicate the Pod and open an interactive shell inside it.
+After you exit the shell, you'll be prompted to confirm whether you want to delete the duplicated Pod.
+
 ### Duplicate a Deployment
 
 ```sh

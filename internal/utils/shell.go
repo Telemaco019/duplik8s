@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package flags
+package utils
 
-const (
-	KUBECONFIG  = "kubeconfig"
-	NAMESPACE   = "namespace"
-	KUBECONTEXT = "context"
-
-	COMMAND_OVERRIDE = "command-override"
-	ARGS_OVERRIDE    = "args-override"
+import (
+	"os"
+	"os/exec"
 )
+
+func RunInteractive(cmd []string) error {
+	c := exec.Command(cmd[0], cmd[1:]...)
+	c.Stdin = os.Stdin
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+	return c.Run()
+}

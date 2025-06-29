@@ -14,30 +14,14 @@
  * limitations under the License.
  */
 
-package cmd
+package flags
 
-import (
-	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
-	"github.com/telemaco019/duplik8s/pkg/utils"
+const (
+	KUBECONFIG  = "kubeconfig"
+	NAMESPACE   = "namespace"
+	KUBECONTEXT = "context"
+
+	COMMAND_OVERRIDE  = "command-override"
+	ARGS_OVERRIDE     = "args-override"
+	INTERACTIVE_SHELL = "shell"
 )
-
-func NewKubeOptions(cmd *cobra.Command, _ []string) (utils.KubeOptions, error) {
-	var err error
-
-	o := utils.KubeOptions{}
-	o.Kubeconfig, err = cmd.Flags().GetString(flags.KUBECONFIG)
-	if err != nil {
-		return o, err
-	}
-	o.Kubecontext, err = cmd.Flags().GetString(flags.KUBECONTEXT)
-	if err != nil {
-		return o, err
-	}
-	o.Namespace, err = cmd.Flags().GetString(flags.NAMESPACE)
-	if err != nil {
-		return o, err
-	}
-
-	return o, nil
-}

@@ -19,8 +19,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"github.com/telemaco019/duplik8s/pkg/test"
-	"github.com/telemaco019/duplik8s/pkg/test/mocks"
+	"github.com/telemaco019/duplik8s/internal/test"
+	"github.com/telemaco019/duplik8s/internal/test/mocks"
 	"testing"
 )
 

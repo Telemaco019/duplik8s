@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package utils
+package cmd
 
 import (
-	"github.com/charmbracelet/huh"
-	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/spf13/cobra"
+	"github.com/telemaco019/duplik8s/internal/cmd/flags"
+	"github.com/telemaco019/duplik8s/internal/utils"
 )
 
-func SelectItem(items []core.DuplicableObject, selectMessage string) (core.DuplicableObject, error) {
-	var selected core.DuplicableObject
-	options := make([]huh.Option[core.DuplicableObject], len(items))
-	for i, o := range items {
-		options[i] = huh.NewOption(o.Name, o)
+func NewKubeOptions(cmd *cobra.Command, _ []string) (utils.KubeOptions, error) {
+	var err error
+
+	o := utils.KubeOptions{}
+	o.Kubeconfig, err = cmd.Flags().GetString(flags.KUBECONFIG)
+	if err != nil {
+		return o, err
 	}
-	err := huh.NewSelect[core.DuplicableObject]().
-		Title(selectMessage).
-		Options(options...).
-		Value(&selected).
-		Run()
-	return selected, err
+	o.Kubecontext, err = cmd.Flags().GetString(flags.KUBECONTEXT)
+	if err != nil {
+		return o, err
+	}
+	o.Namespace, err = cmd.Flags().GetString(flags.NAMESPACE)
+	if err != nil {
+		return o, err
+	}
+
+	return o, nil
 }

@@ -18,7 +18,7 @@ package mocks
 
 import (
 	"context"
-	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/internal/core"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -66,7 +66,7 @@ func (c *PodClient) ListDuplicable(
 	return c.ListPodsResult.Objs, c.ListPodsResult.Err
 }
 
-func (c *PodClient) Duplicate(_ core.DuplicableObject, __ core.PodOverrideOptions) error {
+func (c *PodClient) Duplicate(_ core.DuplicableObject, __ core.DuplicateOpts) error {
 	return c.DuplicatePodResult
 }
 

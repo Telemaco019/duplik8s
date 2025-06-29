@@ -18,8 +18,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/utils"
+	"github.com/telemaco019/duplik8s/internal/core"
+	"github.com/telemaco019/duplik8s/internal/utils"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 

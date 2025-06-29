@@ -18,32 +18,32 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/duplicators"
-	"github.com/telemaco019/duplik8s/pkg/utils"
+	"github.com/telemaco019/duplik8s/internal/core"
+	"github.com/telemaco019/duplik8s/internal/duplicators"
+	"github.com/telemaco019/duplik8s/internal/utils"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-func NewPodCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
+func NewDeployCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
 	factory := func(opts utils.KubeOptions) (core.Duplicator, error) {
 		if duplicator == nil {
-			return duplicators.NewPodClient(opts)
+			return duplicators.NewDeploymentClient(opts)
 		}
 		return duplicator, nil
 	}
-	podCmd := &cobra.Command{
-		Use:   "pod",
-		Short: "Duplicate a Pod.",
+	deployCmd := &cobra.Command{
+		Use:   "deploy",
+		Short: "Duplicate a Deployment.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
-				Group:    "",
+				Group:    "apps",
 				Version:  "v1",
-				Resource: "pods",
+				Resource: "deployments",
 			})
 			return run(cmd, args)
 		},
 	}
-	addOverrideFlags(podCmd)
-	return podCmd
+	addOverrideFlags(deployCmd)
+	return deployCmd
 }

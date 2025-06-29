@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package main
+package utils
 
 import (
-	"github.com/telemaco019/duplik8s/internal/cmd"
-	"os"
+	"github.com/charmbracelet/huh"
+	"github.com/telemaco019/duplik8s/internal/core"
 )
 
-func main() {
-	rootCmd := cmd.NewRootCmd(nil, nil)
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+func SelectItem(items []core.DuplicableObject, selectMessage string) (core.DuplicableObject, error) {
+	var selected core.DuplicableObject
+	options := make([]huh.Option[core.DuplicableObject], len(items))
+	for i, o := range items {
+		options[i] = huh.NewOption(o.Name, o)
 	}
+	err := huh.NewSelect[core.DuplicableObject]().
+		Title(selectMessage).
+		Options(options...).
+		Value(&selected).
+		Run()
+	return selected, err
 }

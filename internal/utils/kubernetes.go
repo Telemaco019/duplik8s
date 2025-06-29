@@ -17,8 +17,13 @@
 package utils
 
 import (
+	"context"
+	"fmt"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 	"path/filepath"
+	"time"
 
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -95,6 +100,35 @@ func NewDiscoveryClient(kubeconfig, context string) (*discovery.DiscoveryClient,
 	}
 
 	return clientSet, nil
+}
+
+func IsPodReady(pod *v1.Pod) bool {
+	for _, cond := range pod.Status.Conditions {
+		if cond.Type == v1.PodReady && cond.Status == v1.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}
+
+func WaitUntilPodReady(ctx context.Context, client kubernetes.Interface, pod v1.Pod, timeout time.Duration) error {
+	watchCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	watch, err := client.CoreV1().Pods(pod.Namespace).Watch(watchCtx, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", pod.Name),
+	})
+	if err != nil {
+		return err
+	}
+	defer watch.Stop()
+
+	for event := range watch.ResultChan() {
+		if pod, ok := event.Object.(*v1.Pod); ok && IsPodReady(pod) {
+			return nil
+		}
+	}
+	return fmt.Errorf("pod %s not ready within timeout", pod.Name)
 }
 
 type KubeOptions struct {
