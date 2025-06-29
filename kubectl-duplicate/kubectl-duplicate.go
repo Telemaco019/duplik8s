@@ -17,7 +17,7 @@
 package main
 
 import (
-	"github.com/telemaco019/duplik8s/pkg/cmd"
+	"github.com/telemaco019/duplik8s/internal/cmd"
 	"os"
 )
 

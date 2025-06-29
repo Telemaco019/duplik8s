@@ -19,9 +19,9 @@ package duplicators
 import (
 	"context"
 	"fmt"
-	"github.com/telemaco019/duplik8s/pkg/clients"
-	"github.com/telemaco019/duplik8s/pkg/core"
-	"github.com/telemaco019/duplik8s/pkg/utils"
+	"github.com/telemaco019/duplik8s/internal/clients"
+	"github.com/telemaco019/duplik8s/internal/core"
+	"github.com/telemaco019/duplik8s/internal/utils"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"

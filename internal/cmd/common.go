@@ -18,8 +18,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/cmd/flags"
-	"github.com/telemaco019/duplik8s/pkg/utils"
+	"github.com/telemaco019/duplik8s/internal/cmd/flags"
+	"github.com/telemaco019/duplik8s/internal/utils"
 )
 
 func NewKubeOptions(cmd *cobra.Command, _ []string) (utils.KubeOptions, error) {

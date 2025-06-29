@@ -18,7 +18,7 @@ package mocks
 
 import (
 	"context"
-	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/internal/core"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 

@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/charmbracelet/huh"
-	"github.com/telemaco019/duplik8s/pkg/utils"
+	"github.com/telemaco019/duplik8s/internal/utils"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"

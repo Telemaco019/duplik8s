@@ -20,8 +20,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/telemaco019/duplik8s/pkg/clients"
-	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/internal/clients"
+	"github.com/telemaco019/duplik8s/internal/core"
 )
 
 func listDuplicatedResources(client core.Client, namespace string) error {

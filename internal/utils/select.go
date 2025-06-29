@@ -18,7 +18,7 @@ package utils
 
 import (
 	"github.com/charmbracelet/huh"
-	"github.com/telemaco019/duplik8s/pkg/core"
+	"github.com/telemaco019/duplik8s/internal/core"
 )
 
 func SelectItem(items []core.DuplicableObject, selectMessage string) (core.DuplicableObject, error) {
