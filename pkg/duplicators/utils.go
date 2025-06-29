@@ -22,13 +22,12 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/telemaco019/duplik8s/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"time"
 )
 
-func StartInteractiveShell(ctx context.Context, clientset *kubernetes.Clientset, pod v1.Pod) error {
+func StartInteractiveShell(ctx context.Context, clientset *kubernetes.Clientset, pod corev1.Pod) error {
 	// wait for the pod to be ready
 	fmt.Printf("waiting for the duplicated pod %q to be ready...\n", pod.Name)
 	err := utils.WaitUntilPodReady(ctx, clientset, pod, 60*time.Second)
