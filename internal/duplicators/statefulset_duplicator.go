@@ -96,7 +96,7 @@ func (c *StatefulSetClient) Duplicate(obj core.DuplicableObject, opts core.Dupli
 		if err != nil {
 			return err
 		}
-		return StartInteractiveShell(c.ctx, c.clientset, pod)
+		return StartInteractiveShell(c.ctx, c.clientset, pod, duplicatedStatefulSet)
 	}
 
 	return nil

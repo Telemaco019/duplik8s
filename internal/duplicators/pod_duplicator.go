@@ -80,14 +80,14 @@ func (c *PodClient) Duplicate(obj core.DuplicableObject, opts core.DuplicateOpts
 	}
 
 	// create the new pod
-	_, err = c.clientset.CoreV1().Pods(pod.Namespace).Create(c.ctx, &newPod, metav1.CreateOptions{})
+	duplicatedPod, err := c.clientset.CoreV1().Pods(pod.Namespace).Create(c.ctx, &newPod, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 	fmt.Printf("pod %q duplicated in %q\n", obj.Name, newName)
 
 	if opts.StartInteractiveShell {
-		return StartInteractiveShell(c.ctx, c.clientset, newPod)
+		return StartInteractiveShell(c.ctx, c.clientset, newPod, duplicatedPod)
 	}
 
 	return nil

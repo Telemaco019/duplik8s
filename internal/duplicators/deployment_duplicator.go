@@ -96,7 +96,7 @@ func (c *DeploymentClient) Duplicate(obj core.DuplicableObject, opts core.Duplic
 		if err != nil {
 			return err
 		}
-		return StartInteractiveShell(c.ctx, c.clientset, pod)
+		return StartInteractiveShell(c.ctx, c.clientset, pod, duplicatedDeploy)
 	}
 
 	return nil

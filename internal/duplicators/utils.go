@@ -21,13 +21,20 @@ import (
 	"fmt"
 	"github.com/charmbracelet/huh"
 	"github.com/telemaco019/duplik8s/internal/utils"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"time"
 )
 
-func StartInteractiveShell(ctx context.Context, clientset *kubernetes.Clientset, pod corev1.Pod) error {
+func StartInteractiveShell(
+	ctx context.Context,
+	clientset *kubernetes.Clientset,
+	pod corev1.Pod,
+	duplicatedObject runtime.Object,
+) error {
 	// wait for the pod to be ready
 	fmt.Printf("waiting for the duplicated pod %q to be ready...\n", pod.Name)
 	err := utils.WaitUntilPodReady(ctx, clientset, pod, 60*time.Second)
@@ -43,23 +50,38 @@ func StartInteractiveShell(ctx context.Context, clientset *kubernetes.Clientset,
 	}
 
 	// prompt for deletion
-	var deletePod = true
+	var confirmDelete = true
 	err = huh.NewConfirm().Title(
-		fmt.Sprintf("Do you want to delete the duplicated pod %q?", pod.Namespace),
-	).Value(&deletePod).Run()
+		"Do you want to delete the duplicated resource?",
+	).Value(&confirmDelete).Run()
 	if err != nil {
 		return err
 	}
-	if deletePod {
-		if err = clientset.CoreV1().Pods(pod.Namespace).Delete(ctx, pod.Name, metav1.DeleteOptions{}); err != nil {
-			return fmt.Errorf("failed to delete pod: %w", err)
+	if confirmDelete {
+		// Delete the duplicated object based on its type
+		err = deleteResource(ctx, clientset, duplicatedObject)
+		if err != nil {
+			return err
 		}
-		fmt.Println("duplicated pod deleted.")
+		fmt.Println("duplicated resource deleted.")
 	} else {
-		fmt.Println("pod retained.")
+		fmt.Println("duplicated resource retained.")
 	}
 
 	return nil
+}
+
+func deleteResource(ctx context.Context, clientset *kubernetes.Clientset, duplicatedObject runtime.Object) error {
+	switch obj := duplicatedObject.(type) {
+	case *corev1.Pod:
+		return clientset.CoreV1().Pods(obj.Namespace).Delete(ctx, obj.Name, metav1.DeleteOptions{})
+	case *appsv1.Deployment:
+		return clientset.AppsV1().Deployments(obj.Namespace).Delete(ctx, obj.Name, metav1.DeleteOptions{})
+	case *appsv1.StatefulSet:
+		return clientset.AppsV1().StatefulSets(obj.Namespace).Delete(ctx, obj.Name, metav1.DeleteOptions{})
+	default:
+		return fmt.Errorf("unsupported duplicated object type: %T", obj)
+	}
 }
 
 func GetOwnedPod(
