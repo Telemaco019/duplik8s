@@ -68,7 +68,9 @@ func (c PodConfigurator) OverrideSpec(
 	}
 
 	// Remove init containers
-	podSpec.InitContainers = nil
+	if !c.options.PreserveInitContainers {
+		podSpec.InitContainers = nil
+	}
 
 	return nil
 }

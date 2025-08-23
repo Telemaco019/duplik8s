@@ -61,13 +61,18 @@ func newDuplicateCmd(newDuplicator duplicatorFactory, client core.Client, gvr sc
 		if err != nil {
 			return err
 		}
+		preserveInitContainers, err := cmd.Flags().GetBool(flags.PRESERVE_INIT_CONTAINERS)
+		if err != nil {
+			return err
+		}
 
 		// Avoid printing usage information on errors
 		cmd.SilenceUsage = true
 		options := core.DuplicateOpts{
-			Command:               cmdOverride,
-			Args:                  argsOverride,
-			StartInteractiveShell: interactiveShell,
+			Command:                cmdOverride,
+			Args:                   argsOverride,
+			StartInteractiveShell:  interactiveShell,
+			PreserveInitContainers: preserveInitContainers,
 		}
 
 		// If available, duplicate the resource provided as argument
@@ -119,6 +124,11 @@ func addOverrideFlags(cmd *cobra.Command) {
 		flags.INTERACTIVE_SHELL,
 		false,
 		"After duplicating the resource, launch an interactive shell in the duplicated Pod.",
+	)
+	cmd.Flags().Bool(
+		flags.PRESERVE_INIT_CONTAINERS,
+		false,
+		"Preserve the init containers in the duplicated Pod.",
 	)
 }
 
