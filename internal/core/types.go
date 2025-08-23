@@ -51,6 +51,8 @@ type DuplicateOpts struct {
 	StartupProbe *v1.Probe
 	// StartInteractiveShell indicates whether to start an interactive shell in the duplicated pod.
 	StartInteractiveShell bool
+	// PreserveInitContainers indicates whether to preserve init containers in the duplicated pod.
+	PreserveInitContainers bool
 }
 
 type DuplicatedObject struct {

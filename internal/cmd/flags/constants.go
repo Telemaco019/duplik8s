@@ -21,7 +21,8 @@ const (
 	NAMESPACE   = "namespace"
 	KUBECONTEXT = "context"
 
-	COMMAND_OVERRIDE  = "command-override"
-	ARGS_OVERRIDE     = "args-override"
-	INTERACTIVE_SHELL = "shell"
+	COMMAND_OVERRIDE         = "command-override"
+	ARGS_OVERRIDE            = "args-override"
+	INTERACTIVE_SHELL        = "shell"
+	PRESERVE_INIT_CONTAINERS = "preserve-init-containers"
 )
