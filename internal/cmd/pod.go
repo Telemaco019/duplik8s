@@ -32,9 +32,10 @@ func NewPodCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
 		return duplicator, nil
 	}
 	podCmd := &cobra.Command{
-		Use:   "pod",
-		Short: "Duplicate a Pod.",
-		Args:  cobra.MaximumNArgs(1),
+		Use:     "pod",
+		Aliases: []string{"pods"},
+		Short:   "Duplicate a Pod.",
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
 				Group:    "",

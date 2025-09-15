@@ -32,9 +32,10 @@ func NewDeployCmd(duplicator core.Duplicator, client core.Client) *cobra.Command
 		return duplicator, nil
 	}
 	deployCmd := &cobra.Command{
-		Use:   "deploy",
-		Short: "Duplicate a Deployment.",
-		Args:  cobra.MaximumNArgs(1),
+		Use:     "deploy",
+		Aliases: []string{"deployment", "deployments"},
+		Short:   "Duplicate a Deployment.",
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
 				Group:    "apps",

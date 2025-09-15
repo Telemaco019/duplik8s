@@ -32,9 +32,10 @@ func NewStatefulSetCmd(duplicator core.Duplicator, client core.Client) *cobra.Co
 		return duplicator, nil
 	}
 	deployCmd := &cobra.Command{
-		Use:   "statefulset",
-		Short: "Duplicate a StatefulSet.",
-		Args:  cobra.MaximumNArgs(1),
+		Use:     "statefulset",
+		Aliases: []string{"statefulsets"},
+		Short:   "Duplicate a StatefulSet.",
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
 				Group:    "apps",
