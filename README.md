@@ -65,31 +65,18 @@ After reloading k9s, you should be able to duplicate Pods with `Ctrl-T`.
 ```yaml
 # $XDG_CONFIG_HOME/k9s/plugins.yaml
 plugins:
-  duplik8s-pod:
+  duplik8s:
     shortCut: Ctrl-T
-    description: Duplicate Pod
+    description: Duplicate resource
     scopes:
       - po
+      - deploy
+      - statefulset
     command: kubectl
     background: true
     args:
       - duplicate
-      - pod
-      - $NAME
-      - -n
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-  duplik8s-deploy:
-    shortCut: Ctrl-T
-    description: Duplicate Deployment
-    scopes:
-      - deploy
-    command: kubectl
-    background: true
-    args:
-      - duplicate
-      - deploy
+      - $RESOURCE_NAME
       - $NAME
       - -n
       - $NAMESPACE
