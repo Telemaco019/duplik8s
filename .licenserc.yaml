@@ -2,6 +2,7 @@ header:
   license:
     spdx-id: Apache-2.0
     copyright-owner: Michele Zanotti <m.zanotti019@gmail.com>
+    copyright-year: '2025'
     software-name: duplik8s
 
   paths-ignore:
