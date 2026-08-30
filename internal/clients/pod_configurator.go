@@ -51,7 +51,6 @@ func (c PodConfigurator) OverrideSpec(
 			podSpec.Containers[i].Args = c.options.Args
 			podSpec.Containers[i].ReadinessProbe = c.options.ReadinessProbe
 			podSpec.Containers[i].LivenessProbe = c.options.LivenessProbe
-			podSpec.Containers[i].ReadinessProbe = c.options.ReadinessProbe
 			podSpec.Containers[i].StartupProbe = c.options.StartupProbe
 		}
 	}

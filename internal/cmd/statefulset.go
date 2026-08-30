@@ -21,7 +21,6 @@ import (
 	"github.com/telemaco019/duplik8s/internal/core"
 	"github.com/telemaco019/duplik8s/internal/duplicators"
 	"github.com/telemaco019/duplik8s/internal/utils"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func NewStatefulSetCmd(duplicator core.Duplicator, client core.Client) *cobra.Command {
@@ -31,17 +30,14 @@ func NewStatefulSetCmd(duplicator core.Duplicator, client core.Client) *cobra.Co
 		}
 		return duplicator, nil
 	}
+	gvr, _ := core.GVRForKind("StatefulSet")
 	deployCmd := &cobra.Command{
 		Use:     "statefulset",
 		Aliases: []string{"statefulsets"},
 		Short:   "Duplicate a StatefulSet.",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			run := newDuplicateCmd(factory, client, schema.GroupVersionResource{
-				Group:    "apps",
-				Version:  "v1",
-				Resource: "statefulsets",
-			})
+			run := newDuplicateCmd(factory, client, gvr)
 			return run(cmd, args)
 		},
 	}

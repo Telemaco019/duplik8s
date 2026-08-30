@@ -82,7 +82,7 @@ func newDuplicateCmd(newDuplicator duplicatorFactory, client core.Client, gvr sc
 				Name:      args[0],
 				Namespace: opts.Namespace,
 			}
-			return duplicator.Duplicate(obj, options)
+			return duplicator.Duplicate(context.Background(), obj, options)
 		}
 
 		// Otherwise, list available resources
@@ -105,7 +105,7 @@ func newDuplicateCmd(newDuplicator duplicatorFactory, client core.Client, gvr sc
 		if err != nil {
 			return err
 		}
-		return duplicator.Duplicate(obj, options)
+		return duplicator.Duplicate(context.Background(), obj, options)
 	}
 }
 
