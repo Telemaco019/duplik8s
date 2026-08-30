@@ -25,7 +25,7 @@ import (
 )
 
 type Duplicator interface {
-	Duplicate(obj DuplicableObject, opts DuplicateOpts) error
+	Duplicate(ctx context.Context, obj DuplicableObject, opts DuplicateOpts) error
 }
 
 type Client interface {

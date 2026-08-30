@@ -76,6 +76,5 @@ func NewCleanupCmd(client core.Client) *cobra.Command {
 			return cleanup(client, opts.Namespace)
 		},
 	}
-	addOverrideFlags(podCmd)
 	return podCmd
 }

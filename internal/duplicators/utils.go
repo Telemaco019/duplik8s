@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/charmbracelet/huh"
 	"github.com/telemaco019/duplik8s/internal/utils"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -34,6 +33,7 @@ func StartInteractiveShell(
 	clientset *kubernetes.Clientset,
 	pod corev1.Pod,
 	duplicatedObject runtime.Object,
+	deleteFunc func(context.Context, runtime.Object) error,
 ) error {
 	// wait for the pod to be ready
 	fmt.Printf("waiting for the duplicated pod %q to be ready...\n", pod.Name)
@@ -58,8 +58,8 @@ func StartInteractiveShell(
 		return err
 	}
 	if confirmDelete {
-		// Delete the duplicated object based on its type
-		err = deleteResource(ctx, clientset, duplicatedObject)
+		// Delete the duplicated object via the resource handler
+		err = deleteFunc(ctx, duplicatedObject)
 		if err != nil {
 			return err
 		}
@@ -69,19 +69,6 @@ func StartInteractiveShell(
 	}
 
 	return nil
-}
-
-func deleteResource(ctx context.Context, clientset *kubernetes.Clientset, duplicatedObject runtime.Object) error {
-	switch obj := duplicatedObject.(type) {
-	case *corev1.Pod:
-		return clientset.CoreV1().Pods(obj.Namespace).Delete(ctx, obj.Name, metav1.DeleteOptions{})
-	case *appsv1.Deployment:
-		return clientset.AppsV1().Deployments(obj.Namespace).Delete(ctx, obj.Name, metav1.DeleteOptions{})
-	case *appsv1.StatefulSet:
-		return clientset.AppsV1().StatefulSets(obj.Namespace).Delete(ctx, obj.Name, metav1.DeleteOptions{})
-	default:
-		return fmt.Errorf("unsupported duplicated object type: %T", obj)
-	}
 }
 
 func GetOwnedPod(

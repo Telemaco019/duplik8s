@@ -58,6 +58,5 @@ func NewListDuplicatedCmd(client core.Client) *cobra.Command {
 			return listDuplicatedResources(client, opts.Namespace)
 		},
 	}
-	addOverrideFlags(podCmd)
 	return podCmd
 }

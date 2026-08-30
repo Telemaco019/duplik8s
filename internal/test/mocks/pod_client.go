@@ -66,7 +66,7 @@ func (c *PodClient) ListDuplicable(
 	return c.ListPodsResult.Objs, c.ListPodsResult.Err
 }
 
-func (c *PodClient) Duplicate(_ core.DuplicableObject, __ core.DuplicateOpts) error {
+func (c *PodClient) Duplicate(_ context.Context, _ core.DuplicableObject, __ core.DuplicateOpts) error {
 	return c.DuplicatePodResult
 }
 
